@@ -11,7 +11,7 @@ provider "aws" {
 }
 
 resource "aws_vpc" "vpc" {
-  cidr_block = "10.0.0.0/24"
+  cidr_block = "10.0.0.0/16"
   tags {
     Name = "caronae"
   }
@@ -44,7 +44,17 @@ resource "aws_subnet" "default" {
   map_public_ip_on_launch = true
 
   tags {
-    Name = "caronae"
+    Name = "caronae-subnet1"
+  }
+}
+
+resource "aws_subnet" "subnet2" {
+  vpc_id = "${aws_vpc.vpc.id}"
+  cidr_block = "10.0.1.0/24"
+  map_public_ip_on_launch = true
+
+  tags {
+    Name = "caronae-subnet2"
   }
 }
 
@@ -102,7 +112,7 @@ resource "aws_instance" "caronae-instance" {
   ami = "ami-4fffc834"
   instance_type = "t2.micro"
   subnet_id = "${aws_subnet.default.id}"
-  security_groups = [ "${aws_security_group.web-security-group.id}" ]
+  vpc_security_group_ids = [ "${aws_security_group.web-security-group.id}" ]
   key_name = "terraform"
 
   user_data = <<EOF
@@ -114,6 +124,7 @@ ssh_authorized_keys:
   - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQClyB1T4F7GuYQm8NqW/uvI7ukh1LkOHozBFrL0YbYcDzVvOT/8CUXEgw46TkA4LNGV3mBa/DKhzqhsDFl2RGWPfVjeUHeEnasv+hPF0cBhN30AN/mlCbZgoCmGs2oQtGZATfIBIm1DuoH3Y63/ripMB1U6GIAp6yIR6g9BLn9c/yi49gEuGCq1EQbYboLL5SbQDiguIZE327hGHW4XTcP4qI6BpleZ9iYPpOcWdTvuE5qAbFuUjX7oxEvBPuTWLyh/bgll0MBhrmwdqBWKGTbNgNxuPPmn58BZG44T9C/uTkRO8G7/VeLpnJFIj0np9vDzSYa+1occg/S6wjqpQoHd mcecchi@LAmcecchi 
 
 packages:
+  - git
   - docker
 
 runcmd:
@@ -125,6 +136,37 @@ EOF
   tags {
     Name = "caronae-prod"
   }
+}
+
+resource "aws_alb" "api" {
+  name            = "caronae-api"
+  internal        = false
+  security_groups = [ "${aws_security_group.web-security-group.id}" ]
+  subnets         = [ "${aws_subnet.default.id}", "${aws_subnet.subnet2.id}" ]
+}
+
+resource "aws_alb_target_group" "api" {
+  name     = "api-http"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = "${aws_vpc.vpc.id}"
+}
+
+resource "aws_alb_listener" "front_end" {
+  load_balancer_arn = "${aws_alb.api.arn}"
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    target_group_arn = "${aws_alb_target_group.api.arn}"
+    type             = "forward"
+  }
+}
+
+resource "aws_alb_target_group_attachment" "test" {
+  target_group_arn = "${aws_alb_target_group.api.arn}"
+  target_id        = "${aws_instance.caronae-instance.id}"
+  port             = 80
 }
 
 data "aws_route53_zone" "caronae" {
