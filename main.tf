@@ -145,26 +145,43 @@ resource "aws_alb" "api" {
   subnets         = [ "${aws_subnet.default.id}", "${aws_subnet.subnet2.id}" ]
 }
 
-resource "aws_alb_target_group" "api" {
+resource "aws_alb_target_group" "api-http" {
   name     = "api-http"
   port     = 80
   protocol = "HTTP"
   vpc_id   = "${aws_vpc.vpc.id}"
 }
 
-resource "aws_alb_listener" "front_end" {
+resource "aws_alb_listener" "http" {
   load_balancer_arn = "${aws_alb.api.arn}"
   port              = "80"
   protocol          = "HTTP"
 
   default_action {
-    target_group_arn = "${aws_alb_target_group.api.arn}"
+    target_group_arn = "${aws_alb_target_group.api-http.arn}"
+    type             = "forward"
+  }
+}
+
+data "aws_acm_certificate" "caronae" {
+  domain   = "*.caronae.com.br"
+}
+
+resource "aws_alb_listener" "https" {
+  load_balancer_arn = "${aws_alb.api.arn}"
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = "${data.aws_acm_certificate.caronae.arn}"
+
+  default_action {
+    target_group_arn = "${aws_alb_target_group.api-http.arn}"
     type             = "forward"
   }
 }
 
 resource "aws_alb_target_group_attachment" "test" {
-  target_group_arn = "${aws_alb_target_group.api.arn}"
+  target_group_arn = "${aws_alb_target_group.api-http.arn}"
   target_id        = "${aws_instance.caronae-instance.id}"
   port             = 80
 }
@@ -177,14 +194,22 @@ resource "aws_route53_record" "api" {
   zone_id = "${data.aws_route53_zone.caronae.zone_id}"
   name    = "api2"
   type    = "A"
-  ttl     = "300"
-  records = ["${aws_instance.caronae-instance.public_ip}"]
+
+  alias {
+    name                   = "${aws_alb.api.dns_name}"
+    zone_id                = "${aws_alb.api.zone_id}"
+    evaluate_target_health = true
+  }
 }
 
 resource "aws_route53_record" "ufrj" {
   zone_id = "${data.aws_route53_zone.caronae.zone_id}"
   name    = "ufrj"
   type    = "A"
-  ttl     = "300"
-  records = ["${aws_instance.caronae-instance.public_ip}"]
+
+  alias {
+    name                   = "${aws_alb.api.dns_name}"
+    zone_id                = "${aws_alb.api.zone_id}"
+    evaluate_target_health = true
+  }
 }
