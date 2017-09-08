@@ -6,8 +6,9 @@ terraform {
   }
 }
 
+variable "region" { default = "us-east-1" }
 provider "aws" {
-  region = "us-east-1"
+  region = "${var.region}"
 }
 
 resource "aws_vpc" "vpc" {
