@@ -204,10 +204,16 @@ runcmd:
   - pip install docker-compose
   - usermod -a -G docker ec2-user
   - service docker start
+
   - cat /tmp/.encrypted_envs.base64 | base64 -di > /tmp/.encrypted_envs
   - mkdir /var/caronae
   - aws kms decrypt --region ${var.region} --ciphertext-blob fileb:///tmp/.encrypted_envs --output text --query Plaintext | base64 --decode > /var/caronae/.env
   - chown -R ec2-user:ec2-user /var/caronae
+
+  - cd /var/caronae
+  - git clone https://github.com/macecchi/caronae-docker.git
+  - mv .env caronae-docker/
+  - /usr/local/bin/docker-compose -f caronae-docker/docker-compose.yml up -d --build
 
 EOF
 
