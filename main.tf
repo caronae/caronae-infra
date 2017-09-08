@@ -166,7 +166,7 @@ resource "aws_iam_policy" "caronae_instance" {
 EOF
 }
 
-resource "aws_iam_policy_attachment" "roles_for_gocd_server" {
+resource "aws_iam_policy_attachment" "roles_for_caronae_instance" {
   name = "roles-for-caronae-instance-${terraform.workspace}"
   roles = ["${aws_iam_role.caronae_instance.name}"]
   policy_arn = "${aws_iam_policy.caronae_instance.arn}"
