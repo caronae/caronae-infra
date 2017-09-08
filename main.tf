@@ -192,6 +192,10 @@ ssh_authorized_keys:
   - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDL9qZDkCmWYXAFjTHJJjWi6Fk2+2P/1ZSVeDGoHhcOSqwq3TSqzg/Rft8jRhTMOQ9lbGXC+qke94X0VMeUw6e+MbtDAi+QNDfq8NOu0fXJe+ngKlN4nzW935e+LqtmN6CytCrL9w4LNPzKcQANFb+g/YzMeoedWLvAkgmqKXXby30/Qz4B5JwPXUMFnvrNw+HsiHaNUc15xLoTPzS11mfREXqbZcFia+uTeMbDqcOcflXP313Jr6l4/wW7nBdbST3wy4L1ylSS3JrwLXkFnTiNuDjOi5uhMxK4VhzDXwEcpqZV9wBFssc6QomKgX2cMSMDGwcLoZi3oukJY+mEadGLDZa7LnjkvuMo91rETTSE1Kjl9n3JoTplF5QM6t7NHqPtFfjbuHSNNQ4egYOsiLQTVx/WBOZTj65UWEptnUpkv6VVi5vp5FoemigzRIxMk/AR1rn7VlxY/gcDtydEhKIZ1eP04dVyqgOMSem4IdXiPoChOb+jRsoxM+T6pl4xPLqL5Qoi8E8LTgEkysABktx98ZfYDC4m7WV+1Hp2CsP9eZ5hV1Buv9GQbmKkNJQyQi9IpDqwbVEKHQB/Wg3nW9/S51GxZmUS1l0m4Q2WMEBPncGuhq5MndGW3HjeAbyXiJzqUL1u7GcnTSE3F1PdrAlGlZQmnfpS1BZ4jbZ7KI+nPw== TW-mcecchi
   - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDIAvy3fgLDLMlsojze1eY5mEkPCfy6SP+LcxlCD3rIF2ZMBHj5xeCpMEmHR1AXoOTWY2GrKaOI3rzg5AKeisTS5e/92859q/HDjDQunj7Q8JzaqsGtwukyWsCeHI/sgZOraADy5BG5lgOKQ244dfDFytZqseo0/kaWMvv2DRGcsSMCfJtn0QBP9lnlik16Fn716r+r7Z1YLiZaO0Tz977PSlewZomVDBja+0VXaCFAp3dBZ3fqJbCpCz6C0ajTu6beQbSqSuy/rwmB5wq9ZOFF33Yld3FQdkYGIYGHPk5yLGhCv+0R0Pg+eSDE5z/TC/7O10e5CAgLEWkl+7bCO8MZ lhanke@thoughtworks.com
 
+write_files:
+  - path: /tmp/.encrypted_envs.base64
+    content: "${file(".encrypted_envs")}"
+
 packages:
   - git
   - docker
@@ -200,6 +204,11 @@ runcmd:
   - pip install docker-compose
   - usermod -a -G docker ec2-user
   - service docker start
+  - cat /tmp/.encrypted_envs.base64 | base64 -di > /tmp/.encrypted_envs
+  - mkdir /var/caronae
+  - aws kms decrypt --region ${var.region} --ciphertext-blob fileb:///tmp/.encrypted_envs --output text --query Plaintext | base64 --decode > /var/caronae/.env
+  - chown -R ec2-user:ec2-user /var/caronae
+
 EOF
 
   tags {
