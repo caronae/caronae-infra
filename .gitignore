@@ -3,6 +3,8 @@
 *.tfstate.*.backup
 *.tfstate.backup
 
+# env var file
+.env
+
 # Module directory
 .terraform/
-
