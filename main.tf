@@ -14,14 +14,14 @@ provider "aws" {
 resource "aws_vpc" "vpc" {
   cidr_block = "10.0.0.0/16"
   tags {
-    Name = "caronae"
+    Name = "caronae-${terraform.workspace}"
   }
 }
 
 resource "aws_internet_gateway" "default" {
   vpc_id = "${aws_vpc.vpc.id}"
   tags {
-    Name = "caronae-igw"
+    Name = "caronae-igw-${terraform.workspace}"
   }
 }
 
@@ -34,7 +34,7 @@ resource "aws_route_table" "public" {
   }
 
   tags {
-    Name = "public"
+    Name = "public-${terraform.workspace}"
     env = "${terraform.workspace}"
   }
 }
@@ -46,7 +46,7 @@ resource "aws_subnet" "default" {
   availability_zone = "${var.region}a"
 
   tags {
-    Name = "caronae-subnet1"
+    Name = "caronae-subnet1-${terraform.workspace}"
   }
 }
 
@@ -57,7 +57,7 @@ resource "aws_subnet" "subnet2" {
   availability_zone = "${var.region}b"
 
   tags {
-    Name = "caronae-subnet2"
+    Name = "caronae-subnet2-${terraform.workspace}"
   }
 }
 
@@ -72,7 +72,7 @@ resource "aws_security_group" "web-security-group" {
   vpc_id = "${aws_vpc.vpc.id}"
 
   tags {
-    Name = "caronae-http-ssh"
+    Name = "caronae-http-ssh-${terraform.workspace}"
   }
 
   ingress {
@@ -136,19 +136,19 @@ runcmd:
 EOF
 
   tags {
-    Name = "caronae-prod"
+    Name = "caronae-${terraform.workspace}"
   }
 }
 
 resource "aws_alb" "api" {
-  name            = "caronae-api"
+  name            = "caronae-api-${terraform.workspace}"
   internal        = false
   security_groups = [ "${aws_security_group.web-security-group.id}" ]
   subnets         = [ "${aws_subnet.default.id}", "${aws_subnet.subnet2.id}" ]
 }
 
 resource "aws_alb_target_group" "api-http" {
-  name     = "api-http"
+  name     = "api-http-${terraform.workspace}"
   port     = 80
   protocol = "HTTP"
   vpc_id   = "${aws_vpc.vpc.id}"
@@ -194,7 +194,7 @@ data "aws_route53_zone" "caronae" {
 
 resource "aws_route53_record" "api" {
   zone_id = "${data.aws_route53_zone.caronae.zone_id}"
-  name    = "api2"
+  name    = "api2-${terraform.workspace}"
   type    = "A"
 
   alias {
@@ -206,7 +206,7 @@ resource "aws_route53_record" "api" {
 
 resource "aws_route53_record" "ufrj" {
   zone_id = "${data.aws_route53_zone.caronae.zone_id}"
-  name    = "ufrj"
+  name    = "ufrj-${terraform.workspace}"
   type    = "A"
 
   alias {
