@@ -200,82 +200,6 @@ resource "aws_instance" "caronae-instance" {
   }
 }
 
-resource "aws_alb" "api" {
-  name            = "caronae-api-${terraform.workspace}"
-  internal        = false
-  security_groups = [ "${aws_security_group.web-security-group.id}" ]
-  subnets         = [ "${aws_subnet.default.id}", "${aws_subnet.useless.id}" ]
-}
-
-resource "aws_alb_target_group" "api" {
-  name     = "caronae-api-${terraform.workspace}"
-  port     = 80
-  protocol = "HTTP"
-  vpc_id   = "${aws_vpc.vpc.id}"
-}
-
-resource "aws_alb_target_group" "ufrj-authentication" {
-  name     = "caronae-ufrj-${terraform.workspace}"
-  port     = 81
-  protocol = "HTTP"
-  vpc_id   = "${aws_vpc.vpc.id}"
-}
-
-resource "aws_alb_listener" "http" {
-  load_balancer_arn = "${aws_alb.api.arn}"
-  port              = "80"
-  protocol          = "HTTP"
-
-  default_action {
-    target_group_arn = "${aws_alb_target_group.api.arn}"
-    type             = "forward"
-  }
-}
-
-data "aws_acm_certificate" "caronae" {
-  domain   = "*.caronae.com.br"
-}
-
-resource "aws_alb_listener" "https" {
-  load_balancer_arn = "${aws_alb.api.arn}"
-  port              = "443"
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = "${data.aws_acm_certificate.caronae.arn}"
-
-  default_action {
-    target_group_arn = "${aws_alb_target_group.api.arn}"
-    type             = "forward"
-  }
-}
-
-resource "aws_alb_listener_rule" "ufrj-authentication" {
-  listener_arn = "${aws_alb_listener.https.arn}"
-  priority     = 100
-
-  action {
-    type             = "forward"
-    target_group_arn = "${aws_alb_target_group.ufrj-authentication.arn}"
-  }
-
-  condition {
-    field  = "host-header"
-    values = ["ufrj-${terraform.workspace}.caronae.com.br"]
-  }
-}
-
-resource "aws_alb_target_group_attachment" "api" {
-  target_group_arn = "${aws_alb_target_group.api.arn}"
-  target_id        = "${aws_instance.caronae-instance.id}"
-  port             = 80
-}
-
-resource "aws_alb_target_group_attachment" "ufrj-authentication" {
-  target_group_arn = "${aws_alb_target_group.ufrj-authentication.arn}"
-  target_id        = "${aws_instance.caronae-instance.id}"
-  port             = 81
-}
-
 data "aws_route53_zone" "caronae" {
   name = "caronae.com.br."
 }
@@ -284,22 +208,14 @@ resource "aws_route53_record" "api" {
   zone_id = "${data.aws_route53_zone.caronae.zone_id}"
   name    = "api2-${terraform.workspace}"
   type    = "A"
-
-  alias {
-    name                   = "${aws_alb.api.dns_name}"
-    zone_id                = "${aws_alb.api.zone_id}"
-    evaluate_target_health = true
-  }
+  ttl     = "300"
+  records = ["${aws_instance.caronae-instance.public_ip}"]
 }
 
 resource "aws_route53_record" "ufrj" {
   zone_id = "${data.aws_route53_zone.caronae.zone_id}"
   name    = "ufrj-${terraform.workspace}"
   type    = "A"
-
-  alias {
-    name                   = "${aws_alb.api.dns_name}"
-    zone_id                = "${aws_alb.api.zone_id}"
-    evaluate_target_health = true
-  }
+  ttl     = "300"
+  records = ["${aws_instance.caronae-instance.public_ip}"]
 }
