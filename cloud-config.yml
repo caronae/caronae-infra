@@ -7,6 +7,9 @@ ssh_authorized_keys:
 write_files:
   - path: /tmp/.encrypted_envs.base64
     content: "${encrypted_envs}"
+  - path: /etc/cron.d/update-cert
+    content: |
+      @daily ec2-user sudo /usr/local/bin/certbot-auto renew --no-self-upgrade
 
 packages:
   - git
@@ -16,13 +19,23 @@ runcmd:
   - pip install docker-compose
   - usermod -a -G docker ec2-user
   - service docker start
+  - mkdir /var/caronae
+
+  - wget https://dl.eff.org/certbot-auto
+  - chmod +x certbot-auto
+  - mv certbot-auto /usr/local/bin/certbot-auto
+  - /usr/local/bin/certbot-auto -n certonly --debug --standalone --agree-tos -m macecchi@gmail.com -d ${api_domain},${ufrj_domain}
+  - chgrp -R docker /etc/letsencrypt
+  - chmod -R g=rX /etc/letsencrypt
+  - mkdir /var/caronae/certs
+  - ln -s /etc/letsencrypt/live/${api_domain}/fullchain.pem /var/caronae/certs/
+  - ln -s /etc/letsencrypt/live/${api_domain}/privkey.pem /var/caronae/certs/
 
   - cat /tmp/.encrypted_envs.base64 | base64 -di > /tmp/.encrypted_envs
-  - mkdir /var/caronae
   - aws kms decrypt --region ${region} --ciphertext-blob fileb:///tmp/.encrypted_envs --output text --query Plaintext | base64 --decode > /var/caronae/.env
   - chown -R ec2-user:ec2-user /var/caronae
 
   - cd /var/caronae
   - git clone https://github.com/macecchi/caronae-docker.git
   - mv .env caronae-docker/
-  - /usr/local/bin/docker-compose -f caronae-docker/docker-compose.yml up -d --build
+  - CARONAE_ENABLE_SSL=true /usr/local/bin/docker-compose -f caronae-docker/docker-compose.yml up -d --build

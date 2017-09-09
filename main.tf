@@ -182,6 +182,8 @@ data "template_file" "cloud_config" {
 
   vars {
     encrypted_envs = "${file(".encrypted_envs")}"
+    api_domain = "api2-${terraform.workspace}.caronae.com.br"
+    ufrj_domain = "ufrj-${terraform.workspace}.caronae.com.br"
     region = "${var.region}"
   }
 }
