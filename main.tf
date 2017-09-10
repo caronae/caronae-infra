@@ -221,3 +221,11 @@ resource "aws_route53_record" "ufrj" {
   ttl     = "300"
   records = ["${aws_instance.caronae-instance.public_ip}"]
 }
+
+resource "aws_route53_record" "site" {
+  zone_id = "${data.aws_route53_zone.caronae.zone_id}"
+  name    = "site-${terraform.workspace}"
+  type    = "A"
+  ttl     = "300"
+  records = ["${aws_instance.caronae-instance.public_ip}"]
+}
