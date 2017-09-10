@@ -24,7 +24,7 @@ runcmd:
   - wget https://dl.eff.org/certbot-auto
   - chmod +x certbot-auto
   - mv certbot-auto /usr/local/bin/certbot-auto
-  - /usr/local/bin/certbot-auto -n certonly --debug --standalone --agree-tos -m macecchi@gmail.com -d ${api_domain},${ufrj_domain}
+  - /usr/local/bin/certbot-auto -n certonly --debug --standalone --agree-tos -m macecchi@gmail.com -d ${api_domain},${ufrj_domain},${site_domain}
   - chgrp -R docker /etc/letsencrypt
   - chmod -R g=rX /etc/letsencrypt
   - mkdir /var/caronae/certs
