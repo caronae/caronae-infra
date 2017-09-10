@@ -37,7 +37,7 @@ runcmd:
 
   - cd /var/caronae
   - git clone https://github.com/caronae/caronae-site.git
-  - git clone https://github.com/macecchi/caronae-docker.git
+  - git clone https://github.com/caronae/caronae-docker.git
   - mv .env caronae-docker/
   - docker volume create postgres
   - docker volume create redis
