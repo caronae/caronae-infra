@@ -50,17 +50,6 @@ resource "aws_subnet" "default" {
   }
 }
 
-resource "aws_subnet" "useless" {
-  vpc_id = "${aws_vpc.vpc.id}"
-  cidr_block = "10.0.1.0/24"
-  map_public_ip_on_launch = true
-  availability_zone = "${var.region}b"
-
-  tags {
-    Name = "caronae-useless-${terraform.workspace}"
-  }
-}
-
 resource "aws_route_table_association" "public" {
   subnet_id      = "${aws_subnet.default.id}"
   route_table_id = "${aws_route_table.public.id}"
@@ -78,13 +67,6 @@ resource "aws_security_group" "web-security-group" {
   ingress {
     from_port   = 80
     to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 81
-    to_port     = 81
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
