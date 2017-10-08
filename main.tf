@@ -6,13 +6,17 @@ terraform {
   }
 }
 
-variable "region" { default = "us-east-1" }
+variable "region" {
+  default = "us-east-1"
+}
+
 provider "aws" {
   region = "${var.region}"
 }
 
 resource "aws_vpc" "vpc" {
   cidr_block = "10.0.0.0/16"
+
   tags {
     Name = "caronae-${terraform.workspace}"
   }
@@ -20,6 +24,7 @@ resource "aws_vpc" "vpc" {
 
 resource "aws_internet_gateway" "default" {
   vpc_id = "${aws_vpc.vpc.id}"
+
   tags {
     Name = "caronae-igw-${terraform.workspace}"
   }
@@ -35,15 +40,15 @@ resource "aws_route_table" "public" {
 
   tags {
     Name = "public-${terraform.workspace}"
-    env = "${terraform.workspace}"
+    env  = "${terraform.workspace}"
   }
 }
 
 resource "aws_subnet" "default" {
-  vpc_id = "${aws_vpc.vpc.id}"
-  cidr_block = "10.0.0.0/24"
+  vpc_id                  = "${aws_vpc.vpc.id}"
+  cidr_block              = "10.0.0.0/24"
   map_public_ip_on_launch = true
-  availability_zone = "${var.region}a"
+  availability_zone       = "${var.region}a"
 
   tags {
     Name = "caronae-default-${terraform.workspace}"
@@ -56,9 +61,9 @@ resource "aws_route_table_association" "public" {
 }
 
 resource "aws_security_group" "web-security-group" {
-  name = "caronae-web"
+  name        = "caronae-web"
   description = "Web server security group"
-  vpc_id = "${aws_vpc.vpc.id}"
+  vpc_id      = "${aws_vpc.vpc.id}"
 
   tags {
     Name = "caronae-http-ssh-${terraform.workspace}"
@@ -103,22 +108,23 @@ resource "aws_security_group" "web-security-group" {
 data "aws_iam_policy_document" "caronae_instance_policy_document" {
   statement {
     actions = ["sts:AssumeRole"]
-    effect = "Allow"
+    effect  = "Allow"
 
     principals {
-      type = "Service"
+      type        = "Service"
       identifiers = ["ec2.amazonaws.com"]
     }
   }
 }
 
 resource "aws_iam_role" "caronae_instance" {
-  name = "caronae-instance-${terraform.workspace}"
+  name               = "caronae-instance-${terraform.workspace}"
   assume_role_policy = "${data.aws_iam_policy_document.caronae_instance_policy_document.json}"
 }
 
 resource "aws_iam_policy" "caronae_instance" {
   name = "caronae-instance-${terraform.workspace}"
+
   policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -149,8 +155,8 @@ EOF
 }
 
 resource "aws_iam_policy_attachment" "roles_for_caronae_instance" {
-  name = "roles-for-caronae-instance-${terraform.workspace}"
-  roles = ["${aws_iam_role.caronae_instance.name}"]
+  name       = "roles-for-caronae-instance-${terraform.workspace}"
+  roles      = ["${aws_iam_role.caronae_instance.name}"]
   policy_arn = "${aws_iam_policy.caronae_instance.arn}"
 }
 
@@ -164,21 +170,21 @@ data "template_file" "cloud_config" {
 
   vars {
     encrypted_envs = "${file(".encrypted_envs")}"
-    api_domain = "api2-${terraform.workspace}.caronae.com.br"
-    ufrj_domain = "ufrj-${terraform.workspace}.caronae.com.br"
-    site_domain = "site-${terraform.workspace}.caronae.com.br"
-    region = "${var.region}"
+    api_domain     = "api2-${terraform.workspace}.caronae.com.br"
+    ufrj_domain    = "ufrj-${terraform.workspace}.caronae.com.br"
+    site_domain    = "site-${terraform.workspace}.caronae.com.br"
+    region         = "${var.region}"
   }
 }
 
 resource "aws_instance" "caronae-instance" {
-  ami = "ami-4fffc834"
-  instance_type = "t2.micro"
-  subnet_id = "${aws_subnet.default.id}"
-  vpc_security_group_ids = [ "${aws_security_group.web-security-group.id}" ]
-  key_name = "terraform"
-  iam_instance_profile = "${aws_iam_instance_profile.caronae_instance.id}"
-  user_data = "${data.template_file.cloud_config.rendered}"
+  ami                    = "ami-4fffc834"
+  instance_type          = "t2.micro"
+  subnet_id              = "${aws_subnet.default.id}"
+  vpc_security_group_ids = ["${aws_security_group.web-security-group.id}"]
+  key_name               = "terraform"
+  iam_instance_profile   = "${aws_iam_instance_profile.caronae_instance.id}"
+  user_data              = "${data.template_file.cloud_config.rendered}"
 
   tags {
     Name = "caronae-${terraform.workspace}"
