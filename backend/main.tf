@@ -2,15 +2,18 @@ variable "region" {}
 variable "subnet" {}
 variable "security_group" {}
 variable "iam_instance_profile" {}
+variable "api_domain" {}
+variable "ufrj_domain" {}
+variable "site_domain" {}
 
 data "template_file" "cloud_config" {
   template = "${file("backend/cloud-config.yml")}"
 
   vars {
     encrypted_envs = "${file("backend/.encrypted_envs")}"
-    api_domain     = "api2-${terraform.workspace}.caronae.com.br"
-    ufrj_domain    = "ufrj-${terraform.workspace}.caronae.com.br"
-    site_domain    = "site-${terraform.workspace}.caronae.com.br"
+    api_domain     = "${var.api_domain}"
+    ufrj_domain    = "${var.ufrj_domain}"
+    site_domain    = "${var.site_domain}"
     region         = "${var.region}"
   }
 }
