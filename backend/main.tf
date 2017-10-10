@@ -33,5 +33,5 @@ resource "aws_instance" "caronae_instance" {
 }
 
 output "instance_ip" {
-  value = "${aws_instance.caronae_instance.instance_ip}"
+  value = "${aws_instance.caronae_instance.public_ip}"
 }

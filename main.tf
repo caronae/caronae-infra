@@ -44,8 +44,8 @@ module "dns" {
   source = "./dns"
 
   domain              = "${var.domain}"
-  api_domain          = "api.${terraform.workspace}.${var.domain}"
-  ufrj_domain         = "ufrj.${terraform.workspace}.${var.domain}"
-  site_domain         = "${terraform.workspace}.${var.domain}"
+  api_domain          = "api.${terraform.workspace}"
+  ufrj_domain         = "ufrj.${terraform.workspace}"
+  site_domain         = "${terraform.workspace}"
   backend_instance_ip = "${module.backend.instance_ip}"
 }
