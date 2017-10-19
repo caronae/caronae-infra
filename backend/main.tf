@@ -5,6 +5,7 @@ variable "iam_instance_profile" {}
 variable "api_domain" {}
 variable "ufrj_domain" {}
 variable "site_domain" {}
+variable "environment" {}
 
 data "template_file" "cloud_config" {
   template = "${file("backend/cloud-config.yml")}"
@@ -19,7 +20,7 @@ data "template_file" "cloud_config" {
 }
 
 resource "aws_instance" "caronae_instance" {
-  ami                    = "ami-4fffc834"
+  ami                    = "ami-8c1be5f6"
   instance_type          = "t2.micro"
   subnet_id              = "${var.subnet}"
   vpc_security_group_ids = ["${var.security_group}"]
@@ -28,7 +29,7 @@ resource "aws_instance" "caronae_instance" {
   user_data              = "${data.template_file.cloud_config.rendered}"
 
   tags {
-    Name = "caronae-${terraform.workspace}"
+    Name = "caronae-${terraform.workspace}-${var.environment}"
   }
 }
 
