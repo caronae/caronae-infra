@@ -11,7 +11,7 @@ data "template_file" "cloud_config" {
   template = "${file("backend/cloud-config.yml")}"
 
   vars {
-    encrypted_envs = "${file("backend/.encrypted_envs")}"
+    encrypted_envs = "${file("backend/.encrypted_envs_${var.environment}")}"
     api_domain     = "${var.api_domain}"
     ufrj_domain    = "${var.ufrj_domain}"
     site_domain    = "${var.site_domain}"
