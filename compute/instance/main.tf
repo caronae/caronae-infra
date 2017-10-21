@@ -1,5 +1,6 @@
 variable "region" {}
 variable "subnet" {}
+variable "elastic_ip_id" {}
 variable "security_group" {}
 variable "iam_instance_profile" {}
 variable "api_domain" {}
@@ -9,10 +10,10 @@ variable "environment" {}
 variable "image_tag" {}
 
 data "template_file" "cloud_config" {
-  template = "${file("backend/cloud-config.yml")}"
+  template = "${file("compute/instance/cloud-config.yml")}"
 
   vars {
-    encrypted_envs = "${file("backend/.encrypted_envs_${var.environment}")}"
+    encrypted_envs = "${file("compute/instance/.encrypted_envs_${var.environment}")}"
     api_domain     = "${var.api_domain}"
     ufrj_domain    = "${var.ufrj_domain}"
     site_domain    = "${var.site_domain}"
@@ -35,6 +36,7 @@ resource "aws_instance" "caronae_instance" {
   }
 }
 
-output "instance_ip" {
-  value = "${aws_instance.caronae_instance.public_ip}"
+resource "aws_eip_association" "eip_assoc" {
+  instance_id   = "${aws_instance.caronae_instance.id}"
+  allocation_id = "${var.elastic_ip_id}"
 }

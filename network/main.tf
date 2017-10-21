@@ -1,5 +1,9 @@
 variable "region" {}
 
+variable "elastic_ip_count" {
+  default = 2
+}
+
 resource "aws_vpc" "vpc" {
   cidr_block = "10.0.0.0/16"
 
@@ -44,6 +48,11 @@ resource "aws_subnet" "default" {
 resource "aws_route_table_association" "public" {
   subnet_id      = "${aws_subnet.default.id}"
   route_table_id = "${aws_route_table.public.id}"
+}
+
+resource "aws_eip" "eip" {
+  count = "${var.elastic_ip_count}"
+  vpc   = true
 }
 
 resource "aws_security_group" "web" {
@@ -97,4 +106,12 @@ output "subnet" {
 
 output "web_security_group" {
   value = "${aws_security_group.web.id}"
+}
+
+output "elastic_ips" {
+  value = ["${aws_eip.eip.*.public_ip}"]
+}
+
+output "elastic_ips_ids" {
+  value = ["${aws_eip.eip.*.id}"]
 }
