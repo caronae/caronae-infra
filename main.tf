@@ -36,6 +36,7 @@ module "backend_prod" {
   source = "./backend"
 
   environment          = "prod"
+  image_tag            = "latest"
   api_domain           = "api.${data.template_file.workspace_domain.rendered}"
   ufrj_domain          = "ufrj.${data.template_file.workspace_domain.rendered}"
   site_domain          = "${data.template_file.workspace_domain.rendered}"
@@ -49,6 +50,7 @@ module "backend_dev" {
   source = "./backend"
 
   environment          = "dev"
+  image_tag            = "develop"
   api_domain           = "api.dev.${data.template_file.workspace_domain.rendered}"
   ufrj_domain          = "ufrj.dev.${data.template_file.workspace_domain.rendered}"
   site_domain          = "dev.${data.template_file.workspace_domain.rendered}"

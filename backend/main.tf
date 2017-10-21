@@ -6,6 +6,7 @@ variable "api_domain" {}
 variable "ufrj_domain" {}
 variable "site_domain" {}
 variable "environment" {}
+variable "image_tag" {}
 
 data "template_file" "cloud_config" {
   template = "${file("backend/cloud-config.yml")}"
@@ -16,6 +17,7 @@ data "template_file" "cloud_config" {
     ufrj_domain    = "${var.ufrj_domain}"
     site_domain    = "${var.site_domain}"
     region         = "${var.region}"
+    image_tag      = "${var.image_tag}"
   }
 }
 
