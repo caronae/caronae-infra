@@ -12,6 +12,12 @@ write_files:
   - path: /etc/cron.d/update-cert
     content: |
       @daily ec2-user sudo /usr/local/bin/certbot-auto renew --no-self-upgrade
+  - path: /etc/environment
+    permissions: 0644
+    content: |
+      CARONAE_ENV_TAG=${image_tag}
+      AWS_LOG_REGION=${region}
+      AWS_LOG_GROUP=${log_group}
 
 packages:
   - git
@@ -43,4 +49,7 @@ runcmd:
   - mv .env caronae-docker/
   - docker volume create postgres
   - docker volume create redis
-  - CARONAE_ENV_TAG=${image_tag} /usr/local/bin/docker-compose -f caronae-docker/docker-compose.yml -f caronae-docker/docker-compose.prod.yml up -d --build
+  - export CARONAE_ENV_TAG=${image_tag}
+  - export AWS_LOG_REGION=${region}
+  - export AWS_LOG_GROUP=${log_group}
+  - /usr/local/bin/docker-compose -f caronae-docker/docker-compose.yml -f caronae-docker/docker-compose.prod.yml up -d --build

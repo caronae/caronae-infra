@@ -9,6 +9,14 @@ variable "site_domain" {}
 variable "environment" {}
 variable "image_tag" {}
 
+resource "aws_cloudwatch_log_group" "default" {
+  name = "${var.environment}"
+
+  tags {
+    Workspace = "${terraform.workspace}"
+  }
+}
+
 data "template_file" "cloud_config" {
   template = "${file("compute/instance/cloud-config.yml")}"
 
@@ -19,6 +27,7 @@ data "template_file" "cloud_config" {
     site_domain    = "${var.site_domain}"
     region         = "${var.region}"
     image_tag      = "${var.image_tag}"
+    log_group      = "${aws_cloudwatch_log_group.default.name}"
   }
 }
 
@@ -32,7 +41,9 @@ resource "aws_instance" "caronae_instance" {
   user_data              = "${data.template_file.cloud_config.rendered}"
 
   tags {
-    Name = "caronae-${terraform.workspace}-${var.environment}"
+    Name        = "caronae-${var.environment}"
+    Environment = "${var.environment}"
+    Workspace   = "${terraform.workspace}"
   }
 }
 

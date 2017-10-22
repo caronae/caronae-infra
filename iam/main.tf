@@ -1,4 +1,4 @@
-data "aws_iam_policy_document" "caronae_instance_policy_document" {
+data "aws_iam_policy_document" "assume_ec2_role" {
   statement {
     actions = ["sts:AssumeRole"]
     effect  = "Allow"
@@ -12,7 +12,7 @@ data "aws_iam_policy_document" "caronae_instance_policy_document" {
 
 resource "aws_iam_role" "caronae_instance" {
   name               = "caronae-instance-${terraform.workspace}"
-  assume_role_policy = "${data.aws_iam_policy_document.caronae_instance_policy_document.json}"
+  assume_role_policy = "${data.aws_iam_policy_document.assume_ec2_role.json}"
 }
 
 resource "aws_iam_policy" "caronae_instance" {
@@ -23,24 +23,13 @@ resource "aws_iam_policy" "caronae_instance" {
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Effect": "Allow",
-      "Action": ["iam:*"],
-      "Resource": "arn:aws:iam:::instance-profile/"
-    },
-    {
-      "Effect": "Allow",
-      "Action": ["iam:*"],
-      "Resource": "arn:aws:iam:::policy/"
-    },
-    {
-      "Effect": "Allow",
-      "Action": ["iam:*"],
-      "Resource": "arn:aws:iam:::role/"
-    },
-    {
-      "Effect": "Allow",
-      "Action": ["kms:Decrypt"],
-      "Resource": "*"
+       "Effect": "Allow",
+       "Action": [
+          "kms:Decrypt",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+       ],
+       "Resource": "*"
     }
   ]
 }
