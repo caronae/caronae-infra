@@ -36,10 +36,14 @@ resource "aws_iam_policy" "caronae_instance" {
 EOF
 }
 
-resource "aws_iam_policy_attachment" "roles_for_caronae_instance" {
-  name       = "roles-for-caronae-instance-${terraform.workspace}"
-  roles      = ["${aws_iam_role.caronae_instance.name}"]
+resource "aws_iam_role_policy_attachment" "caronae_role_policy" {
+  role       = "${aws_iam_role.caronae_instance.name}"
   policy_arn = "${aws_iam_policy.caronae_instance.arn}"
+}
+
+resource "aws_iam_role_policy_attachment" "caronae_role_policy_s3" {
+  role       = "${aws_iam_role.caronae_instance.name}"
+  policy_arn = "arn:aws:iam::236688692074:policy/CaronaeWriteToS3Bucket"
 }
 
 resource "aws_iam_instance_profile" "caronae_instance" {
