@@ -34,7 +34,7 @@ data "template_file" "cloud_config" {
 }
 
 resource "aws_instance" "caronae_instance" {
-  ami                    = "ami-8c1be5f6"
+  ami                    = "ami-97785bed"
   instance_type          = "t2.micro"
   availability_zone      = "${var.availability_zone}"
   subnet_id              = "${var.subnet}"
