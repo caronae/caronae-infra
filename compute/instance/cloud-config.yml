@@ -8,8 +8,12 @@ ssh_authorized_keys:
   - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCwKHJt+YmCd2AIFFb1ChgVwsXG/y4Qq0fPVvy/kxaS7RfbBLVFGhWjqW9GtZ6FRijTkTuQEm9lwiE8qRIzaetgExLggQXaX9zg+ed5++BOCDP6HKQEqC11tSwJjiVZuKKwqrrrNHnZmovR64sG0p5DwMSZszL3mBuQyvAAzroAQgT57jIUMnglKkQVDa3cb8MAFLm29oMSSWQVvkbP+qNQXHKz40eWmFLXCHFS81RpkGp1w///W6N/AixxVzthy1nmMMsJsE5fIQb5GPL6p6TKE6oodmpHa4cTQKkdyv+heDM5+vTYMcabGfRVplig2f3ucrE+y4lwQu+LCiDKijz2LME8gcSc5aRPj3FgSOfsRTqm4OIamMfNIWQas0ySaGVd/voNGNo2nYwxh+JtROSgFhr6d1qwFoMDB0pWbmMcLLWfK1WU2rblCE6n9Kk8fcVf79JoNLScuC6n7U4XKVjqO2FKM18/haVPBVbosW2yflVUd4n0xl7KlBwD2zWktY1GzCj3NiCFLWSTgTeR1tQ3FR/SXNoSf6LIYke/71dMY3+k5XYFyxChl8GVcsuqHPB/v/3vNdsMZB6RPqNcjmsqqB/ZO9SrDz1bklXw5QRicjab2Xm7cba6a57UmAZbyb+8Arl0rPPa10TwZkYdH3gRawv+3iOT9fxsgPTSMXqdOw== rdamasceno@poli.ufrj.br
 
 write_files:
-  - path: /tmp/.encrypted_envs.base64
-    content: "${encrypted_envs}"
+  - path: /tmp/mount_volumes.sh
+    content: '${mount_volumes_script}'
+  - path: /home/ec2-user/.aws/config
+    content: |
+      [default]
+      region = ${region}
   - path: /etc/cron.d/update-cert
     content: |
       @daily ec2-user sudo /usr/local/bin/certbot-auto renew --no-self-upgrade
@@ -25,6 +29,8 @@ packages:
   - docker
 
 runcmd:
+  - sh /tmp/mount_volumes.sh
+
   - pip install docker-compose
   - usermod -a -G docker ec2-user
   - service docker start
@@ -40,17 +46,12 @@ runcmd:
   - ln -s /etc/letsencrypt/live/${api_domain}/fullchain.pem /var/caronae/certs/
   - ln -s /etc/letsencrypt/live/${api_domain}/privkey.pem /var/caronae/certs/
 
-  - cat /tmp/.encrypted_envs.base64 | base64 -di > /tmp/.encrypted_envs
-  - aws kms decrypt --region ${region} --ciphertext-blob fileb:///tmp/.encrypted_envs --output text --query Plaintext | base64 --decode > /var/caronae/.env
-  - chown -R ec2-user:ec2-user /var/caronae
-
   - cd /var/caronae
   - git clone https://github.com/caronae/caronae-site.git
   - git clone https://github.com/caronae/caronae-docker.git
-  - mv .env caronae-docker/
-  - docker volume create postgres
-  - docker volume create redis
   - export CARONAE_ENV_TAG=${image_tag}
   - export AWS_LOG_REGION=${region}
   - export AWS_LOG_GROUP=${log_group}
+  - AWS_DEFAULT_REGION=${region} caronae-docker/scripts/kms decrypt env_${environment}
   - /usr/local/bin/docker-compose -f caronae-docker/docker-compose.yml -f caronae-docker/docker-compose.prod.yml up -d --build
+  - chown -R ec2-user:ec2-user /var/caronae

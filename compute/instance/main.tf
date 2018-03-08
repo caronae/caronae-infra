@@ -11,8 +11,12 @@ variable "site_domain" {}
 variable "environment" {}
 variable "image_tag" {}
 
+data "template_file" "instance_name" {
+  template = "${ terraform.workspace == "default" ? "caronae-${var.environment}" : "caronae-${terraform.workspace}-${var.environment}" }"
+}
+
 resource "aws_cloudwatch_log_group" "default" {
-  name = "${var.environment}"
+  name = "${data.template_file.instance_name.rendered}"
 
   tags {
     Workspace = "${terraform.workspace}"
@@ -23,13 +27,14 @@ data "template_file" "cloud_config" {
   template = "${file("compute/instance/cloud-config.yml")}"
 
   vars {
-    encrypted_envs = "${file("compute/instance/.encrypted_envs_${var.environment}")}"
-    api_domain     = "${var.api_domain}"
-    ufrj_domain    = "${var.ufrj_domain}"
-    site_domain    = "${var.site_domain}"
-    region         = "${var.region}"
-    image_tag      = "${var.image_tag}"
-    log_group      = "${aws_cloudwatch_log_group.default.name}"
+    api_domain           = "${var.api_domain}"
+    ufrj_domain          = "${var.ufrj_domain}"
+    site_domain          = "${var.site_domain}"
+    region               = "${var.region}"
+    environment          = "${var.environment}"
+    image_tag            = "${var.image_tag}"
+    log_group            = "${aws_cloudwatch_log_group.default.name}"
+    mount_volumes_script = "${file("compute/instance/mount_volumes.sh")}"
   }
 }
 
@@ -44,7 +49,7 @@ resource "aws_instance" "caronae_instance" {
   user_data              = "${data.template_file.cloud_config.rendered}"
 
   tags {
-    Name        = "caronae-${var.environment}"
+    Name        = "${data.template_file.instance_name.rendered}"
     Environment = "${var.environment}"
     Workspace   = "${terraform.workspace}"
   }
