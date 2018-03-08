@@ -31,6 +31,10 @@ data "template_file" "workspace_domain" {
 }
 
 data "template_file" "workspace_dns_domain" {
+  template = "${ terraform.workspace == "default" ? "" : "${terraform.workspace}" }"
+}
+
+data "template_file" "workspace_dns_domain_with_dot" {
   template = "${ terraform.workspace == "default" ? "" : ".${terraform.workspace}" }"
 }
 
@@ -50,8 +54,8 @@ module "dns_prod" {
   source = "./dns"
 
   domain              = "${local.domain}"
-  api_domain          = "api${data.template_file.workspace_dns_domain.rendered}"
-  ufrj_domain         = "ufrj${data.template_file.workspace_dns_domain.rendered}"
+  api_domain          = "api${data.template_file.workspace_dns_domain_with_dot.rendered}"
+  ufrj_domain         = "ufrj${data.template_file.workspace_dns_domain_with_dot.rendered}"
   site_domain         = "${data.template_file.workspace_dns_domain.rendered}"
   backend_instance_ip = "${module.network.elastic_ips[0]}"
 }
@@ -60,8 +64,8 @@ module "dns_dev" {
   source = "./dns"
 
   domain              = "${local.domain}"
-  api_domain          = "api.dev${data.template_file.workspace_dns_domain.rendered}"
-  ufrj_domain         = "ufrj.dev${data.template_file.workspace_dns_domain.rendered}"
-  site_domain         = "dev${data.template_file.workspace_dns_domain.rendered}"
+  api_domain          = "api.dev${data.template_file.workspace_dns_domain_with_dot.rendered}"
+  ufrj_domain         = "ufrj.dev${data.template_file.workspace_dns_domain_with_dot.rendered}"
+  site_domain         = "dev${data.template_file.workspace_dns_domain_with_dot.rendered}"
   backend_instance_ip = "${module.network.elastic_ips[1]}"
 }
