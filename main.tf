@@ -7,8 +7,9 @@ terraform {
 }
 
 locals {
-  region = "us-east-1"
-  domain = "caronae.org"
+  region            = "us-east-1"
+  availability_zone = "us-east-1a"
+  domain            = "caronae.org"
 }
 
 provider "aws" {
@@ -36,12 +37,13 @@ data "template_file" "workspace_dns_domain" {
 module "compute" {
   source = "./compute"
 
-  region           = "${local.region}"
-  subnet           = "${module.network.subnet}"
-  elastic_ips_ids  = "${module.network.elastic_ips_ids}"
-  security_group   = "${module.network.web_security_group}"
-  iam_profile      = "${module.iam.instance_iam_profile}"
-  workspace_domain = "${data.template_file.workspace_domain.rendered}"
+  region            = "${local.region}"
+  availability_zone = "${local.availability_zone}"
+  subnet            = "${module.network.subnet}"
+  elastic_ips_ids   = "${module.network.elastic_ips_ids}"
+  security_group    = "${module.network.web_security_group}"
+  iam_profile       = "${module.iam.instance_iam_profile}"
+  workspace_domain  = "${data.template_file.workspace_domain.rendered}"
 }
 
 module "dns_prod" {

@@ -1,8 +1,10 @@
 variable "region" {}
+variable "availability_zone" {}
 variable "subnet" {}
 variable "elastic_ip_id" {}
 variable "security_group" {}
 variable "iam_instance_profile" {}
+variable "data_volume_id" {}
 variable "api_domain" {}
 variable "ufrj_domain" {}
 variable "site_domain" {}
@@ -34,6 +36,7 @@ data "template_file" "cloud_config" {
 resource "aws_instance" "caronae_instance" {
   ami                    = "ami-8c1be5f6"
   instance_type          = "t2.micro"
+  availability_zone      = "${var.availability_zone}"
   subnet_id              = "${var.subnet}"
   vpc_security_group_ids = ["${var.security_group}"]
   key_name               = "terraform"
@@ -50,4 +53,10 @@ resource "aws_instance" "caronae_instance" {
 resource "aws_eip_association" "eip_assoc" {
   instance_id   = "${aws_instance.caronae_instance.id}"
   allocation_id = "${var.elastic_ip_id}"
+}
+
+resource "aws_volume_attachment" "data_volume" {
+  device_name = "/dev/sdh"
+  volume_id   = "${var.data_volume_id}"
+  instance_id = "${aws_instance.caronae_instance.id}"
 }
