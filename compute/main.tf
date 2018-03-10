@@ -39,6 +39,11 @@ module "instance_prod" {
   data_volume_id       = "${module.volume_prod.data_volume}"
 }
 
+module "cluster_dev" {
+  source      = "./cluster"
+  environment = "dev"
+}
+
 module "volume_dev" {
   source = "./volume"
 
@@ -50,6 +55,7 @@ module "instance_dev" {
   source = "./instance"
 
   environment          = "dev"
+  cluster              = "${module.cluster_dev.cluster_name}"
   image_tag            = "develop"
   api_domain           = "api.dev.${var.workspace_domain}"
   ufrj_domain          = "ufrj.dev.${var.workspace_domain}"
