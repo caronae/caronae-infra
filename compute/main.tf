@@ -9,6 +9,11 @@ variable "elastic_ips_ids" {
   type = "list"
 }
 
+module "cluster_prod" {
+  source      = "./cluster"
+  environment = "prod"
+}
+
 module "volume_prod" {
   source = "./volume"
 
@@ -20,6 +25,7 @@ module "instance_prod" {
   source = "./instance"
 
   environment          = "prod"
+  cluster              = "${module.cluster_prod.cluster_name}"
   image_tag            = "latest"
   api_domain           = "api.${var.workspace_domain}"
   ufrj_domain          = "ufrj.${var.workspace_domain}"
