@@ -4,16 +4,25 @@ variable "ufrj_domain" {}
 variable "site_domain" {}
 variable "backend_instance_ip" {}
 
+variable "letsencrypt_challenge" {
+  default = ""
+}
+
 variable "www_domain" {
   default = ""
 }
 
-variable "enable_www" {
-  default = "false"
-}
-
 data "aws_route53_zone" "caronae" {
   name = "${var.domain}."
+}
+
+resource "aws_route53_record" "challenge" {
+  count   = "${length(var.letsencrypt_challenge) > 0 ? 1 : 0}"
+  zone_id = "${data.aws_route53_zone.caronae.zone_id}"
+  name    = "_acme-challenge.${var.domain}"
+  type    = "TXT"
+  ttl     = "300"
+  records = ["${var.letsencrypt_challenge}"]
 }
 
 resource "aws_route53_record" "api" {
@@ -41,7 +50,7 @@ resource "aws_route53_record" "site" {
 }
 
 resource "aws_route53_record" "www" {
-  count   = "${var.enable_www == "true" ? 1 : 0}"
+  count   = "${length(var.www_domain) > 0 ? 1 : 0}"
   zone_id = "${data.aws_route53_zone.caronae.zone_id}"
   name    = "${var.www_domain}"
   type    = "A"

@@ -12,6 +12,10 @@ locals {
   domain            = "caronae.org"
 }
 
+variable "letsencrypt_challenge" {
+  default = ""
+}
+
 provider "aws" {
   region = "${local.region}"
 }
@@ -53,13 +57,13 @@ module "compute" {
 module "dns_prod" {
   source = "./dns"
 
-  domain              = "${local.domain}"
-  api_domain          = "api${data.template_file.workspace_dns_domain_with_dot.rendered}"
-  ufrj_domain         = "ufrj${data.template_file.workspace_dns_domain_with_dot.rendered}"
-  www_domain          = "www${data.template_file.workspace_dns_domain_with_dot.rendered}"
-  site_domain         = "${data.template_file.workspace_dns_domain.rendered}"
-  backend_instance_ip = "${module.network.elastic_ips[0]}"
-  enable_www          = "true"
+  domain                = "${local.domain}"
+  api_domain            = "api${data.template_file.workspace_dns_domain_with_dot.rendered}"
+  ufrj_domain           = "ufrj${data.template_file.workspace_dns_domain_with_dot.rendered}"
+  www_domain            = "www${data.template_file.workspace_dns_domain_with_dot.rendered}"
+  site_domain           = "${data.template_file.workspace_dns_domain.rendered}"
+  backend_instance_ip   = "${module.network.elastic_ips[0]}"
+  letsencrypt_challenge = "${var.letsencrypt_challenge}"
 }
 
 module "dns_dev" {
