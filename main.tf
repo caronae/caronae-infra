@@ -54,6 +54,16 @@ module "compute" {
   workspace_domain  = "${data.template_file.workspace_domain.rendered}"
 }
 
+module "storage_prod" {
+  source      = "./storage"
+  environment = "prod"
+}
+
+module "storage_dev" {
+  source      = "./storage"
+  environment = "dev"
+}
+
 module "dns_prod" {
   source = "./dns"
 
