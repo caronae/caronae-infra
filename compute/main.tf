@@ -9,11 +9,6 @@ variable "elastic_ips_ids" {
   type = "list"
 }
 
-module "cluster_prod" {
-  source      = "./cluster"
-  environment = "prod"
-}
-
 module "volume_prod" {
   source = "./volume"
 
@@ -25,7 +20,6 @@ module "instance_prod" {
   source = "./instance"
 
   environment          = "prod"
-  cluster              = "${module.cluster_prod.cluster_name}"
   image_tag            = "latest"
   api_domain           = "api.${var.workspace_domain}"
   ufrj_domain          = "ufrj.${var.workspace_domain}"
@@ -39,11 +33,6 @@ module "instance_prod" {
   data_volume_id       = "${module.volume_prod.data_volume}"
 }
 
-module "cluster_dev" {
-  source      = "./cluster"
-  environment = "dev"
-}
-
 module "volume_dev" {
   source = "./volume"
 
@@ -55,7 +44,6 @@ module "instance_dev" {
   source = "./instance"
 
   environment          = "dev"
-  cluster              = "${module.cluster_dev.cluster_name}"
   image_tag            = "develop"
   api_domain           = "api.dev.${var.workspace_domain}"
   ufrj_domain          = "ufrj.dev.${var.workspace_domain}"

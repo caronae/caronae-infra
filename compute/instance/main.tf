@@ -10,7 +10,6 @@ variable "ufrj_domain" {}
 variable "site_domain" {}
 variable "environment" {}
 variable "image_tag" {}
-variable "cluster" {}
 
 data "template_file" "instance_name" {
   template = "${ terraform.workspace == "default" ? "caronae-${var.environment}" : "caronae-${terraform.workspace}-${var.environment}" }"
@@ -35,7 +34,6 @@ data "template_file" "cloud_config" {
     environment          = "${var.environment}"
     image_tag            = "${var.image_tag}"
     log_group            = "${aws_cloudwatch_log_group.default.name}"
-    cluster              = "${var.cluster}"
     mount_volumes_script = "${file("compute/instance/mount_volumes.sh")}"
   }
 }

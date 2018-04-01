@@ -23,14 +23,10 @@ write_files:
       CARONAE_ENV_TAG=${image_tag}
       AWS_LOG_REGION=${region}
       AWS_LOG_GROUP=${log_group}
-  - path: /etc/ecs/ecs.config 
-    content: |
-      ECS_CLUSTER=${cluster} 
 
 packages:
   - git
   - docker
-  - ecs-init
 
 runcmd:
   - sh /tmp/mount_volumes.sh
@@ -38,7 +34,6 @@ runcmd:
   - pip install docker-compose
   - usermod -a -G docker ec2-user
   - service docker start
-  - start ecs
   - mkdir /var/caronae
 
   - wget https://dl.eff.org/certbot-auto

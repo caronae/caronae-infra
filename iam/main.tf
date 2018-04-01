@@ -25,20 +25,9 @@ resource "aws_iam_policy" "caronae_instance" {
     {
        "Effect": "Allow",
        "Action": [
-        "ecs:CreateCluster",
-        "ecs:DeregisterContainerInstance",
-        "ecs:DiscoverPollEndpoint",
-        "ecs:Poll",
-        "ecs:RegisterContainerInstance",
-        "ecs:StartTelemetrySession",
-        "ecs:Submit*",
-        "ecr:GetAuthorizationToken",
-        "ecr:BatchCheckLayerAvailability",
-        "ecr:GetDownloadUrlForLayer",
-        "ecr:BatchGetImage",
-        "kms:Decrypt",
-        "logs:CreateLogStream",
-        "logs:PutLogEvents"
+          "kms:Decrypt",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
        ],
        "Resource": "*"
     }
