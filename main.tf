@@ -56,8 +56,10 @@ module "dns_prod" {
   domain              = "${local.domain}"
   api_domain          = "api${data.template_file.workspace_dns_domain_with_dot.rendered}"
   ufrj_domain         = "ufrj${data.template_file.workspace_dns_domain_with_dot.rendered}"
+  www_domain          = "www${data.template_file.workspace_dns_domain_with_dot.rendered}"
   site_domain         = "${data.template_file.workspace_dns_domain.rendered}"
   backend_instance_ip = "${module.network.elastic_ips[0]}"
+  enable_www          = "true"
 }
 
 module "dns_dev" {
