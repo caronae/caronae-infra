@@ -1,7 +1,5 @@
 variable "domain" {}
-variable "api_domain" {}
-variable "ufrj_domain" {}
-variable "site_domain" {}
+variable "environment" {}
 variable "backend_instance_ip" {}
 
 variable "letsencrypt_challenge" {
@@ -16,10 +14,26 @@ data "aws_route53_zone" "caronae" {
   name = "${var.domain}."
 }
 
+data "template_file" "workspace_dns_domain" {
+  template = "${ terraform.workspace == "default" ? "" : "${terraform.workspace}" }"
+}
+
+data "template_file" "workspace_dns_domain_with_dot" {
+  template = "${ terraform.workspace == "default" ? "" : ".${terraform.workspace}" }"
+}
+
+data "template_file" "environment_prefix" {
+  template = "${ var.environment == "prod" ? "" : "dev" }"
+}
+
+data "template_file" "environment_prefix_with_dot" {
+  template = "${ var.environment == "prod" ? "" : ".dev" }"
+}
+
 resource "aws_route53_record" "challenge" {
   count   = "${length(var.letsencrypt_challenge) > 0 ? 1 : 0}"
   zone_id = "${data.aws_route53_zone.caronae.zone_id}"
-  name    = "_acme-challenge.${var.domain}"
+  name    = "_acme-challenge${data.template_file.environment_prefix_with_dot.rendered}${data.template_file.workspace_dns_domain_with_dot.rendered}"
   type    = "TXT"
   ttl     = "300"
   records = ["${var.letsencrypt_challenge}"]
@@ -27,7 +41,7 @@ resource "aws_route53_record" "challenge" {
 
 resource "aws_route53_record" "api" {
   zone_id = "${data.aws_route53_zone.caronae.zone_id}"
-  name    = "${var.api_domain}"
+  name    = "api${data.template_file.environment_prefix_with_dot.rendered}${data.template_file.workspace_dns_domain_with_dot.rendered}"
   type    = "A"
   ttl     = "300"
   records = ["${var.backend_instance_ip}"]
@@ -35,7 +49,7 @@ resource "aws_route53_record" "api" {
 
 resource "aws_route53_record" "ufrj" {
   zone_id = "${data.aws_route53_zone.caronae.zone_id}"
-  name    = "${var.ufrj_domain}"
+  name    = "ufrj${data.template_file.environment_prefix_with_dot.rendered}${data.template_file.workspace_dns_domain_with_dot.rendered}"
   type    = "A"
   ttl     = "300"
   records = ["${var.backend_instance_ip}"]
@@ -43,16 +57,16 @@ resource "aws_route53_record" "ufrj" {
 
 resource "aws_route53_record" "site" {
   zone_id = "${data.aws_route53_zone.caronae.zone_id}"
-  name    = "${var.site_domain}"
+  name    = "${data.template_file.environment_prefix.rendered}${data.template_file.workspace_dns_domain.rendered}"
   type    = "A"
   ttl     = "300"
   records = ["${var.backend_instance_ip}"]
 }
 
 resource "aws_route53_record" "www" {
-  count   = "${length(var.www_domain) > 0 ? 1 : 0}"
+  count   = "${var.environment == "prod" ? 1 : 0}"
   zone_id = "${data.aws_route53_zone.caronae.zone_id}"
-  name    = "${var.www_domain}"
+  name    = "www${data.template_file.workspace_dns_domain_with_dot.rendered}"
   type    = "A"
   ttl     = "300"
   records = ["${var.backend_instance_ip}"]

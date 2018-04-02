@@ -1,3 +1,5 @@
+variable "certificates_bucket" {}
+
 data "aws_iam_policy_document" "assume_ec2_role" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -36,6 +38,30 @@ resource "aws_iam_policy" "caronae_instance" {
 EOF
 }
 
+resource "aws_iam_policy" "caronae_certificates_bucket_read" {
+  name = "CaronaeReadCertificatesS3Bucket-${terraform.workspace}"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["s3:ListBucket"],
+      "Resource": ["${var.certificates_bucket}"]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject"
+      ],
+      "Resource": ["${var.certificates_bucket}/*"]
+    }
+  ]
+}
+EOF
+}
+
 resource "aws_iam_role_policy_attachment" "caronae_role_policy" {
   role       = "${aws_iam_role.caronae_instance.name}"
   policy_arn = "${aws_iam_policy.caronae_instance.arn}"
@@ -44,6 +70,11 @@ resource "aws_iam_role_policy_attachment" "caronae_role_policy" {
 resource "aws_iam_role_policy_attachment" "caronae_role_policy_s3" {
   role       = "${aws_iam_role.caronae_instance.name}"
   policy_arn = "arn:aws:iam::236688692074:policy/CaronaeWriteToS3Bucket"
+}
+
+resource "aws_iam_role_policy_attachment" "caronae_role_policy_certificates" {
+  role       = "${aws_iam_role.caronae_instance.name}"
+  policy_arn = "${aws_iam_policy.caronae_certificates_bucket_read.arn}"
 }
 
 resource "aws_iam_instance_profile" "caronae_instance" {

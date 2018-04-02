@@ -4,6 +4,7 @@ variable "subnet" {}
 variable "security_group" {}
 variable "iam_profile" {}
 variable "workspace_domain" {}
+variable "certificates_bucket" {}
 
 variable "elastic_ips_ids" {
   type = "list"
@@ -31,6 +32,7 @@ module "instance_prod" {
   subnet               = "${var.subnet}"
   elastic_ip_id        = "${var.elastic_ips_ids[0]}"
   data_volume_id       = "${module.volume_prod.data_volume}"
+  certificates_bucket  = "${var.certificates_bucket}"
 }
 
 module "volume_dev" {
@@ -55,4 +57,5 @@ module "instance_dev" {
   subnet               = "${var.subnet}"
   elastic_ip_id        = "${var.elastic_ips_ids[1]}"
   data_volume_id       = "${module.volume_dev.data_volume}"
+  certificates_bucket  = "${var.certificates_bucket}"
 }

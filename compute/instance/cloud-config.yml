@@ -35,23 +35,16 @@ runcmd:
   - usermod -a -G docker ec2-user
   - service docker start
   - mkdir /var/caronae
-
-  - wget https://dl.eff.org/certbot-auto
-  - chmod +x certbot-auto
-  - mv certbot-auto /usr/local/bin/certbot-auto
-  - /usr/local/bin/certbot-auto -n certonly --debug --standalone --agree-tos -m macecchi@gmail.com -d ${api_domain},${ufrj_domain},${site_domain}
-  - chgrp -R docker /etc/letsencrypt
-  - chmod -R g=rX /etc/letsencrypt
-  - mkdir /var/caronae/certs
-  - ln -s /etc/letsencrypt/live/${api_domain}/fullchain.pem /var/caronae/certs/
-  - ln -s /etc/letsencrypt/live/${api_domain}/privkey.pem /var/caronae/certs/
-
   - cd /var/caronae
+
+  - aws s3 cp --recursive s3://${certificates_bucket}/${environment} /var/caronae/certs
+
   - git clone https://github.com/caronae/caronae-site.git
   - git clone https://github.com/caronae/caronae-docker.git
   - export CARONAE_ENV_TAG=${image_tag}
   - export AWS_LOG_REGION=${region}
   - export AWS_LOG_GROUP=${log_group}
   - AWS_DEFAULT_REGION=${region} caronae-docker/scripts/kms decrypt env_${environment}
-  - /usr/local/bin/docker-compose -f caronae-docker/docker-compose.yml -f caronae-docker/docker-compose.prod.yml up -d --build
+  - ln -s .env_${environment} caronae-docker/secrets/.env
+  - caronae-docker/scripts/start.sh
   - chown -R ec2-user:ec2-user /var/caronae
