@@ -14,9 +14,6 @@ write_files:
     content: |
       [default]
       region = ${region}
-  - path: /etc/cron.d/update-cert
-    content: |
-      @daily ec2-user sudo /usr/local/bin/certbot-auto renew --no-self-upgrade
   - path: /etc/environment
     permissions: 0644
     content: |
