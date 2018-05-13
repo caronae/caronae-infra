@@ -11,10 +11,23 @@ resource "aws_s3_bucket" "certificates" {
   }
 }
 
+resource "aws_s3_bucket" "user_content" {
+  bucket = "usercontent${data.template_file.bucket_suffix.rendered}.caronae"
+  acl    = "public-read"
+
+  tags {
+    Workspace = "${terraform.workspace}"
+  }
+}
+
 output "certificates_bucket_arn" {
   value = "${aws_s3_bucket.certificates.arn}"
 }
 
 output "certificates_bucket_name" {
   value = "${aws_s3_bucket.certificates.id}"
+}
+
+output "user_content_bucket_arn" {
+  value = "${aws_s3_bucket.user_content.arn}"
 }
