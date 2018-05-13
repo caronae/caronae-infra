@@ -38,6 +38,7 @@ module "iam" {
   source              = "./iam"
   certificates_bucket = "${module.storage.certificates_bucket_arn}"
   user_content_bucket = "${module.storage.user_content_bucket_arn}"
+  backups_bucket      = "${module.storage.backups_bucket_arn}"
 }
 
 data "template_file" "workspace_domain" {

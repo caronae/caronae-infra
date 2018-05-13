@@ -20,6 +20,15 @@ resource "aws_s3_bucket" "user_content" {
   }
 }
 
+resource "aws_s3_bucket" "backups" {
+  bucket = "backups${data.template_file.bucket_suffix.rendered}.caronae"
+  acl    = "private"
+
+  tags {
+    Workspace = "${terraform.workspace}"
+  }
+}
+
 output "certificates_bucket_arn" {
   value = "${aws_s3_bucket.certificates.arn}"
 }
@@ -30,4 +39,8 @@ output "certificates_bucket_name" {
 
 output "user_content_bucket_arn" {
   value = "${aws_s3_bucket.user_content.arn}"
+}
+
+output "backups_bucket_arn" {
+  value = "${aws_s3_bucket.backups.arn}"
 }
