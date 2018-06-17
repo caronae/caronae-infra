@@ -67,3 +67,17 @@ resource "aws_volume_attachment" "data_volume" {
   volume_id   = "${var.data_volume_id}"
   instance_id = "${aws_instance.caronae_instance.id}"
 }
+
+data "template_file" "dashboard" {
+  template = "${file("compute/instance/dashboard.json.tpl")}"
+
+  vars {
+    instance_id = "${aws_instance.caronae_instance.id}"
+    region      = "${var.region}"
+  }
+}
+
+resource "aws_cloudwatch_dashboard" "default" {
+  dashboard_name = "dashboard-${data.template_file.instance_name.rendered}"
+  dashboard_body = "${data.template_file.dashboard.rendered}"
+}
