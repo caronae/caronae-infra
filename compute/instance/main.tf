@@ -24,31 +24,14 @@ resource "aws_cloudwatch_log_group" "default" {
   }
 }
 
-data "template_file" "cloud_config" {
-  template = "${file("compute/instance/cloud-config.yml")}"
-
-  vars {
-    api_domain           = "${var.api_domain}"
-    ufrj_domain          = "${var.ufrj_domain}"
-    site_domain          = "${var.site_domain}"
-    region               = "${var.region}"
-    environment          = "${var.environment}"
-    image_tag            = "${var.image_tag}"
-    certificates_bucket  = "${var.certificates_bucket}"
-    log_group            = "${aws_cloudwatch_log_group.default.name}"
-    mount_volumes_script = "${file("compute/instance/mount_volumes.sh")}"
-  }
-}
-
-resource "aws_instance" "caronae_instance" {
-  ami                    = "ami-97785bed"
+resource "aws_instance" "caronae" {
+  ami                    = "ami-14c5486b"
   instance_type          = "t2.micro"
   availability_zone      = "${var.availability_zone}"
   subnet_id              = "${var.subnet}"
   vpc_security_group_ids = ["${var.security_group}"]
   key_name               = "terraform"
   iam_instance_profile   = "${var.iam_instance_profile}"
-  user_data              = "${data.template_file.cloud_config.rendered}"
 
   tags {
     Name        = "${data.template_file.instance_name.rendered}"
@@ -58,21 +41,32 @@ resource "aws_instance" "caronae_instance" {
 }
 
 resource "aws_eip_association" "eip_assoc" {
-  instance_id   = "${aws_instance.caronae_instance.id}"
+  instance_id   = "${aws_instance.caronae.id}"
   allocation_id = "${var.elastic_ip_id}"
 }
 
 resource "aws_volume_attachment" "data_volume" {
   device_name = "/dev/sdh"
   volume_id   = "${var.data_volume_id}"
-  instance_id = "${aws_instance.caronae_instance.id}"
+  instance_id = "${aws_instance.caronae.id}"
+}
+
+resource "null_resource" "ansible_provisioner" {
+  triggers {
+    instance = "${aws_instance.caronae.id}"
+    volume   = "${aws_volume_attachment.data_volume.volume_id}"
+  }
+
+  provisioner "local-exec" {
+    command = "sleep 60; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -v -u ec2-user --private-key terraform.pem -i '${aws_instance.caronae.public_ip},' --extra-vars 'caronae_env=${var.environment} image_tag=${var.image_tag} certificates_bucket=${var.certificates_bucket} region=${var.region} log_group=${aws_cloudwatch_log_group.default.name}' compute/instance/ansible-playbook.yml"
+  }
 }
 
 data "template_file" "dashboard" {
   template = "${file("compute/instance/dashboard.json.tpl")}"
 
   vars {
-    instance_id = "${aws_instance.caronae_instance.id}"
+    instance_id = "${aws_instance.caronae.id}"
     region      = "${var.region}"
   }
 }

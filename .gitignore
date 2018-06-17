@@ -6,5 +6,12 @@
 # env var file
 .env
 
-# Module directory
+# Terraform
 .terraform/
+
+# Ansible
+*.retry
+
+# Keys
+*.pem
+

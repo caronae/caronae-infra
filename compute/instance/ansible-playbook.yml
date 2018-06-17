@@ -1,0 +1,87 @@
+- hosts: all
+  become: yes
+  become_user: root
+
+  tasks:
+    - name: Mount EBS volume
+      script: mount_volumes.sh
+      args:
+        creates: /data
+
+    - name: Set environment variables
+      copy: 
+        content: "CARONAE_ENV_TAG={{ image_tag }}\nAWS_DEFAULT_REGION={{ region }}\nAWS_LOG_REGION={{ region }}\nAWS_LOG_GROUP={{ log_group }}"
+        dest: /etc/environment
+
+      ## Authorized keys
+    - name: Add macecchi to authorized_keys
+      authorized_key:
+        user: ec2-user
+        key: https://github.com/macecchi.keys
+    - name: Add lucashanke to authorized_keys
+      authorized_key:
+        user: ec2-user
+        key: https://github.com/lucashanke.keys
+    - name: Add damascenorafael to authorized_keys
+      authorized_key:
+        user: ec2-user
+        key: https://github.com/damascenorafael.keys
+
+    # Dependencies
+    - name: Install git
+      yum:
+        name: git
+        state: latest
+
+    - name: Install docker
+      yum:
+        name: docker
+        state: latest
+
+    - name: Install docker-compose
+      pip:
+        name: docker-compose
+
+    - name: Add ec2-user to the docker group
+      user:
+        name: ec2-user
+        groups: docker
+        append: yes
+
+    - name: Start docker, if not running
+      service:
+        name: docker
+        state: started
+
+    # Caronae services
+    - name: Create caronae directory
+      file: path=/var/caronae state=directory
+
+    - name: Fetch SSL certificates
+      command: aws s3 cp --recursive s3://{{ certificates_bucket }}/{{ caronae_env }} /var/caronae/certs
+      args:
+        creates: /var/caronae/certs
+
+    - name: Clone caronae-site
+      git:
+        repo: https://github.com/caronae/caronae-site.git
+        dest: /var/caronae/caronae-site
+
+    - name: Clone caronae-docker
+      git:
+        repo: https://github.com/caronae/caronae-docker.git
+        dest: /var/caronae/caronae-docker
+
+    - name: Decrypt application secrets
+      shell: /var/caronae/caronae-docker/scripts/kms decrypt env_{{ caronae_env }}
+      args:
+        creates: /var/caronae/caronae-docker/secrets/.env_{{ caronae_env }}
+
+    - name: Link .env file
+      file:
+        src: .env_{{ caronae_env }}
+        dest: /var/caronae/caronae-docker/secrets/.env
+        state: link
+
+    - name: Start caronae-docker
+      shell: /var/caronae/caronae-docker/scripts/start.sh

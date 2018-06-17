@@ -2,7 +2,7 @@
 
 **Infraestrutura do Caronaê na AWS como código**
 
-Infraestrutura do Caronaê na AWS utilizando [Terraform](https://www.terraform.io/).
+Infraestrutura do Caronaê na AWS utilizando [Terraform](https://www.terraform.io/) e [Ansible](https://www.ansible.com/).
 
 
 ## Instalação
@@ -14,10 +14,10 @@ brew install awscli
 aws configure
 ```
 
-Instale o Terraform e inicialize os plugins:
+Instale o Terraform e o Ansible e inicialize os plugins:
 
 ```shell
-brew install terraform
+brew install terraform ansible
 terraform init
 ```
 
