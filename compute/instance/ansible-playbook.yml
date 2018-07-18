@@ -26,6 +26,14 @@
       authorized_key:
         user: ec2-user
         key: https://github.com/damascenorafael.keys
+    - name: Add CircleCI backend agent to authorized_keys
+      authorized_key:
+        user: ec2-user
+        key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDhkF8DSy5yNjc5qWWlztbgY8KkmJY2z5sBzgIBPBmzL0ftdibki/BokEpnYpFXsNnynWYTDPeBRMfELgCKGMHooTH7Vhse66s6zRSckgHWNfKT51efzVO2AQf4O/TxjPY5Fn4/kGoyqA1C/+CH3CcRV4D4TOYxcHcOjGdGJTiYghs5En3w/xNQB9/IkNmdJAMlsy/fM+BIDxHnnH9UN2owtELLzR1Mk0iDm/N/o6789lPZSlQWfl+JQrh3q82qtb0BuT2b4+jzz+W0VESsnkClFvcgR6C/uJTjK+FtPZx//rswxuzZOF1WMsZBK+0lxvLrf2gv7xcTV82ZsMKtvv2R macecchi@Cecchis-MBP.local
+    - name: Add CircleCI ufrj-authentication agent to authorized_keys
+      authorized_key:
+        user: ec2-user
+        key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQClyB1T4F7GuYQm8NqW/uvI7ukh1LkOHozBFrL0YbYcDzVvOT/8CUXEgw46TkA4LNGV3mBa/DKhzqhsDFl2RGWPfVjeUHeEnasv+hPF0cBhN30AN/mlCbZgoCmGs2oQtGZATfIBIm1DuoH3Y63/ripMB1U6GIAp6yIR6g9BLn9c/yi49gEuGCq1EQbYboLL5SbQDiguIZE327hGHW4XTcP4qI6BpleZ9iYPpOcWdTvuE5qAbFuUjX7oxEvBPuTWLyh/bgll0MBhrmwdqBWKGTbNgNxuPPmn58BZG44T9C/uTkRO8G7/VeLpnJFIj0np9vDzSYa+1occg/S6wjqpQoHd mcecchi@LAmcecchi
 
     # Dependencies
     - name: Install git
