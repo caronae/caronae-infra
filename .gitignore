@@ -15,3 +15,5 @@
 # Keys
 *.pem
 
+# JetBrains
+.idea
