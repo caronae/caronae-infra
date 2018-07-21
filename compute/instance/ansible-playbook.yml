@@ -9,11 +9,31 @@
         creates: /data
 
     - name: Set environment variables
-      copy: 
+      copy:
         content: "CARONAE_ENV_TAG={{ image_tag }}\nAWS_DEFAULT_REGION={{ region }}\nAWS_LOG_REGION={{ region }}\nAWS_LOG_GROUP={{ log_group }}"
         dest: /etc/environment
 
-      ## Authorized keys
+    # CloudWatch monitoring
+    - name: Install CloudWatch monitoring dependencies
+      yum: name={{item}} state=latest
+      with_items:
+        - perl-Switch
+        - perl-DateTime
+        - perl-Sys-Syslog
+        - perl-LWP-Protocol-https
+
+    - name: Install CloudWatch monitoring scripts
+      synchronize:
+        src: aws-scripts-mon
+        dest: /var
+
+    - name: Schedule CloudWatch monitoring job
+      cron:
+        name: aws-cw-monitor
+        minute: "*/5"
+        job: "/var/aws-scripts-mon/mon-put-instance-data.pl --disk-space-util --disk-path=/data --disk-path=/ --mem-util"
+
+    # Authorized keys
     - name: Add macecchi to authorized_keys
       authorized_key:
         user: ec2-user

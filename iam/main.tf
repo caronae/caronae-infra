@@ -31,7 +31,11 @@ resource "aws_iam_policy" "caronae_instance" {
        "Action": [
           "kms:Decrypt",
           "logs:CreateLogStream",
-          "logs:PutLogEvents"
+          "logs:PutLogEvents",
+          "cloudwatch:PutMetricData",
+          "cloudwatch:GetMetricStatistics",
+          "cloudwatch:ListMetrics",
+          "ec2:DescribeTags"
        ],
        "Resource": "*"
     }

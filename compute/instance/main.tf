@@ -72,6 +72,6 @@ data "template_file" "dashboard" {
 }
 
 resource "aws_cloudwatch_dashboard" "default" {
-  dashboard_name = "dashboard-${data.template_file.instance_name.rendered}"
+  dashboard_name = "${data.template_file.instance_name.rendered}"
   dashboard_body = "${data.template_file.dashboard.rendered}"
 }

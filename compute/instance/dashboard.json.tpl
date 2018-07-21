@@ -2,10 +2,6 @@
    "widgets": [
        {
           "type":"metric",
-          "x":0,
-          "y":0,
-          "width":12,
-          "height":6,
           "properties":{
              "metrics":[
                 [
@@ -18,7 +14,51 @@
              "period":300,
              "stat":"Average",
              "region":"${region}",
-             "title":"EC2 Instance CPU"
+             "title":"CPU utilization"
+          }
+       },
+       {
+          "type":"metric",
+          "properties":{
+             "metrics":[
+                [
+                   "System/Linux",
+                   "MemoryUtilization",
+                   "InstanceId",
+                   "${instance_id}"
+                ]
+             ],
+             "period":300,
+             "stat":"Average",
+             "region":"${region}",
+             "title":"Memory utilization"
+          }
+       },
+       {
+          "type":"metric",
+          "properties":{
+             "metrics":[
+                [
+                   "System/Linux",
+                   "DiskSpaceUtilization",
+                   "InstanceId",
+                   "${instance_id}",
+                   "MountPath",
+                   "/"
+                ],
+                [
+                   "System/Linux",
+                   "DiskSpaceUtilization",
+                   "InstanceId",
+                   "${instance_id}",
+                   "MountPath",
+                   "/data"
+                ]
+             ],
+             "period":300,
+             "stat":"Average",
+             "region":"${region}",
+             "title":"Disk utilization"
           }
        }
    ]
