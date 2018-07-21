@@ -5,9 +5,6 @@ variable "elastic_ip_id" {}
 variable "security_group" {}
 variable "iam_instance_profile" {}
 variable "data_volume_id" {}
-variable "api_domain" {}
-variable "ufrj_domain" {}
-variable "site_domain" {}
 variable "environment" {}
 variable "image_tag" {}
 variable "certificates_bucket" {}

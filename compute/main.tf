@@ -22,9 +22,6 @@ module "instance_prod" {
 
   environment          = "prod"
   image_tag            = "latest"
-  api_domain           = "api.${var.workspace_domain}"
-  ufrj_domain          = "ufrj.${var.workspace_domain}"
-  site_domain          = "${var.workspace_domain}"
   region               = "${var.region}"
   availability_zone    = "${var.availability_zone}"
   security_group       = "${var.security_group}"
@@ -47,9 +44,6 @@ module "instance_dev" {
 
   environment          = "dev"
   image_tag            = "develop"
-  api_domain           = "api.dev.${var.workspace_domain}"
-  ufrj_domain          = "ufrj.dev.${var.workspace_domain}"
-  site_domain          = "dev.${var.workspace_domain}"
   region               = "${var.region}"
   availability_zone    = "${var.availability_zone}"
   security_group       = "${var.security_group}"
