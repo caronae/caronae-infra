@@ -60,6 +60,51 @@
              "region":"${region}",
              "title":"Disk utilization"
           }
+       },
+       {
+          "type":"metric",
+          "properties":{
+             "metrics":[
+                [
+                   "Caronae",
+                   "${log_group}-error-count"
+                ]
+             ],
+             "period":300,
+             "stat":"Average",
+             "region":"${region}",
+             "title":"Error count"
+          }
+       },
+       {
+          "type":"metric",
+          "properties":{
+             "metrics":[
+                [
+                   "Caronae",
+                   "${log_group}-warning-count"
+                ]
+             ],
+             "period":300,
+             "stat":"Average",
+             "region":"${region}",
+             "title":"Warning count"
+          }
+       },
+       {
+          "type":"metric",
+          "properties":{
+             "metrics":[
+                [
+                   "Caronae",
+                   "${log_group}-nginx-request-count"
+                ]
+             ],
+             "period":60,
+             "stat":"Sum",
+             "region":"${region}",
+             "title":"Request count"
+          }
        }
    ]
  }

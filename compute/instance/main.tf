@@ -13,14 +13,6 @@ data "template_file" "instance_name" {
   template = "${ terraform.workspace == "default" ? "caronae-${var.environment}" : "caronae-${terraform.workspace}-${var.environment}" }"
 }
 
-resource "aws_cloudwatch_log_group" "default" {
-  name = "${data.template_file.instance_name.rendered}"
-
-  tags {
-    Workspace = "${terraform.workspace}"
-  }
-}
-
 resource "aws_instance" "caronae" {
   ami                    = "ami-14c5486b"
   instance_type          = "t2.micro"
@@ -57,18 +49,4 @@ resource "null_resource" "ansible_provisioner" {
   provisioner "local-exec" {
     command = "sleep 60; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -v -u ec2-user --private-key terraform.pem -i '${aws_instance.caronae.public_ip},' --extra-vars 'caronae_env=${var.environment} image_tag=${var.image_tag} certificates_bucket=${var.certificates_bucket} region=${var.region} log_group=${aws_cloudwatch_log_group.default.name}' compute/instance/ansible-playbook.yml"
   }
-}
-
-data "template_file" "dashboard" {
-  template = "${file("compute/instance/dashboard.json.tpl")}"
-
-  vars {
-    instance_id = "${aws_instance.caronae.id}"
-    region      = "${var.region}"
-  }
-}
-
-resource "aws_cloudwatch_dashboard" "default" {
-  dashboard_name = "${data.template_file.instance_name.rendered}"
-  dashboard_body = "${data.template_file.dashboard.rendered}"
 }
