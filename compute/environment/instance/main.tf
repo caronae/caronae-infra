@@ -44,9 +44,10 @@ resource "null_resource" "ansible_provisioner" {
   triggers {
     instance = "${aws_instance.caronae.id}"
     volume   = "${aws_volume_attachment.data_volume.volume_id}"
+    playbook = "${md5(file("compute/environment/instance/ansible-playbook.yml"))}"
   }
 
   provisioner "local-exec" {
-    command = "sleep 60; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -v -u ec2-user --private-key terraform.pem -i '${aws_eip_association.eip_assoc.public_ip},' --extra-vars 'caronae_env=${var.environment} image_tag=${var.image_tag} certificates_bucket=${var.certificates_bucket} region=${var.region} log_group=${aws_cloudwatch_log_group.default.name}' compute/instance/ansible-playbook.yml"
+    command = "sleep 60; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -v -u ec2-user --private-key terraform.pem -i '${aws_eip_association.eip_assoc.public_ip},' --extra-vars 'caronae_env=${var.environment} image_tag=${var.image_tag} certificates_bucket=${var.certificates_bucket} region=${var.region} log_group=${aws_cloudwatch_log_group.default.name}' compute/environment/instance/ansible-playbook.yml"
   }
 }
