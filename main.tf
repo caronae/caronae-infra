@@ -18,7 +18,6 @@ provider "aws" {
 
 module "network" {
   source = "./network"
-
   region = "${local.region}"
 }
 
@@ -33,34 +32,26 @@ module "iam" {
   backups_bucket      = "${module.storage.backups_bucket_arn}"
 }
 
-data "template_file" "workspace_domain" {
-  template = "${ terraform.workspace == "default" ? "${local.domain}" : "${terraform.workspace}.${local.domain}" }"
-}
-
 module "compute" {
-  source = "./compute"
-
+  source              = "./compute"
   region              = "${local.region}"
   availability_zone   = "${local.availability_zone}"
   subnet              = "${module.network.subnet}"
   elastic_ips_ids     = "${module.network.elastic_ips_ids}"
   security_group      = "${module.network.web_security_group}"
   iam_profile         = "${module.iam.instance_iam_profile}"
-  workspace_domain    = "${data.template_file.workspace_domain.rendered}"
   certificates_bucket = "${module.storage.certificates_bucket_name}"
 }
 
 module "dns_prod" {
-  source = "./dns"
-
+  source              = "./dns"
   domain              = "${local.domain}"
   environment         = "prod"
   backend_instance_ip = "${module.network.elastic_ips[0]}"
 }
 
 module "dns_dev" {
-  source = "./dns"
-
+  source              = "./dns"
   domain              = "${local.domain}"
   environment         = "dev"
   backend_instance_ip = "${module.network.elastic_ips[1]}"

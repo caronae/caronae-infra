@@ -3,7 +3,6 @@ variable "availability_zone" {}
 variable "subnet" {}
 variable "security_group" {}
 variable "iam_profile" {}
-variable "workspace_domain" {}
 variable "certificates_bucket" {}
 
 variable "elastic_ips_ids" {
