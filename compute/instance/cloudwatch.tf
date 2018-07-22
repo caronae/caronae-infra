@@ -18,6 +18,30 @@ resource "aws_cloudwatch_log_metric_filter" "nginx_requests" {
   }
 }
 
+resource "aws_cloudwatch_log_metric_filter" "nginx_requests_4xx" {
+  name           = "${aws_cloudwatch_log_group.default.name}-nginx-requests-4xx"
+  pattern        = "[host != 127.0.0.1, logName, user, timestamp, request, statusCode=4*, size]"
+  log_group_name = "${aws_cloudwatch_log_group.default.name}"
+
+  metric_transformation {
+    name      = "${aws_cloudwatch_log_group.default.name}-nginx-request-4xx-count"
+    namespace = "Caronae"
+    value     = "1"
+  }
+}
+
+resource "aws_cloudwatch_log_metric_filter" "nginx_requests_5xx" {
+  name           = "${aws_cloudwatch_log_group.default.name}-nginx-requests-5xx"
+  pattern        = "[host != 127.0.0.1, logName, user, timestamp, request, statusCode=5*, size]"
+  log_group_name = "${aws_cloudwatch_log_group.default.name}"
+
+  metric_transformation {
+    name      = "${aws_cloudwatch_log_group.default.name}-nginx-request-5xx-count"
+    namespace = "Caronae"
+    value     = "1"
+  }
+}
+
 resource "aws_cloudwatch_log_metric_filter" "errors" {
   name           = "${aws_cloudwatch_log_group.default.name}-error-logs"
   pattern        = "ERROR"

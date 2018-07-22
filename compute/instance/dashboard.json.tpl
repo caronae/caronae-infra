@@ -105,6 +105,36 @@
              "region":"${region}",
              "title":"Request count"
           }
+       },
+       {
+          "type":"metric",
+          "properties":{
+             "metrics":[
+                [
+                   "Caronae",
+                   "${log_group}-nginx-request-4xx-count"
+                ]
+             ],
+             "period":60,
+             "stat":"Sum",
+             "region":"${region}",
+             "title":"4xx responses"
+          }
+       },
+       {
+          "type":"metric",
+          "properties":{
+             "metrics":[
+                [
+                   "Caronae",
+                   "${log_group}-nginx-request-5xx-count"
+                ]
+             ],
+             "period":60,
+             "stat":"Sum",
+             "region":"${region}",
+             "title":"5xx responses"
+          }
        }
    ]
  }
