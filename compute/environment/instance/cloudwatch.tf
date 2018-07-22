@@ -80,3 +80,20 @@ resource "aws_cloudwatch_dashboard" "default" {
   dashboard_name = "${data.template_file.instance_name.rendered}"
   dashboard_body = "${data.template_file.dashboard.rendered}"
 }
+
+data "aws_sns_topic" "error_alerts" {
+  name = "caronae_prod_errors"
+}
+
+resource "aws_cloudwatch_metric_alarm" "error_alarm" {
+  count               = "${var.environment == "prod" ? 1 : 0}"
+  alarm_name          = "${aws_cloudwatch_log_group.default.name}-errors"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "${aws_cloudwatch_log_group.default.name}-error-count"
+  namespace           = "Caronae"
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = "1"
+  alarm_actions       = ["${data.aws_sns_topic.error_alerts.arn}"]
+}
