@@ -50,11 +50,6 @@ resource "aws_route_table_association" "public" {
   route_table_id = "${aws_route_table.public.id}"
 }
 
-resource "aws_eip" "eip" {
-  count = "${var.elastic_ip_count}"
-  vpc   = true
-}
-
 resource "aws_security_group" "web" {
   name        = "caronae-web"
   description = "Web server security group"
@@ -106,12 +101,4 @@ output "subnet" {
 
 output "web_security_group" {
   value = "${aws_security_group.web.id}"
-}
-
-output "elastic_ips" {
-  value = ["${aws_eip.eip.*.public_ip}"]
-}
-
-output "elastic_ips_ids" {
-  value = ["${aws_eip.eip.*.id}"]
 }

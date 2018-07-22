@@ -6,19 +6,21 @@ terraform {
   }
 }
 
-locals {
-  region            = "us-east-1"
-  availability_zone = "us-east-1a"
-  domain            = "caronae.org"
+variable "region" {
+  default = "us-east-1"
+}
+
+variable "availability_zone" {
+  default = "us-east-1a"
 }
 
 provider "aws" {
-  region = "${local.region}"
+  region = "${var.region}"
 }
 
 module "network" {
   source = "./network"
-  region = "${local.region}"
+  region = "${var.region}"
 }
 
 module "storage" {
@@ -34,25 +36,10 @@ module "iam" {
 
 module "compute" {
   source              = "./compute"
-  region              = "${local.region}"
-  availability_zone   = "${local.availability_zone}"
+  region              = "${var.region}"
+  availability_zone   = "${var.availability_zone}"
   subnet              = "${module.network.subnet}"
-  elastic_ips_ids     = "${module.network.elastic_ips_ids}"
   security_group      = "${module.network.web_security_group}"
   iam_profile         = "${module.iam.instance_iam_profile}"
   certificates_bucket = "${module.storage.certificates_bucket_name}"
-}
-
-module "dns_prod" {
-  source              = "./dns"
-  domain              = "${local.domain}"
-  environment         = "prod"
-  backend_instance_ip = "${module.network.elastic_ips[0]}"
-}
-
-module "dns_dev" {
-  source              = "./dns"
-  domain              = "${local.domain}"
-  environment         = "dev"
-  backend_instance_ip = "${module.network.elastic_ips[1]}"
 }

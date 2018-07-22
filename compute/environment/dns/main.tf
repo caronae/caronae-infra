@@ -1,4 +1,7 @@
-variable "domain" {}
+variable "domain" {
+  default = "caronae.org"
+}
+
 variable "environment" {}
 variable "backend_instance_ip" {}
 
