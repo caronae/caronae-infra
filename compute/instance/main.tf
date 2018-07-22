@@ -47,6 +47,6 @@ resource "null_resource" "ansible_provisioner" {
   }
 
   provisioner "local-exec" {
-    command = "sleep 60; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -v -u ec2-user --private-key terraform.pem -i '${aws_instance.caronae.public_ip},' --extra-vars 'caronae_env=${var.environment} image_tag=${var.image_tag} certificates_bucket=${var.certificates_bucket} region=${var.region} log_group=${aws_cloudwatch_log_group.default.name}' compute/instance/ansible-playbook.yml"
+    command = "sleep 60; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -v -u ec2-user --private-key terraform.pem -i '${aws_eip_association.eip_assoc.public_ip},' --extra-vars 'caronae_env=${var.environment} image_tag=${var.image_tag} certificates_bucket=${var.certificates_bucket} region=${var.region} log_group=${aws_cloudwatch_log_group.default.name}' compute/instance/ansible-playbook.yml"
   }
 }
