@@ -95,5 +95,6 @@ resource "aws_cloudwatch_metric_alarm" "error_alarm" {
   period              = "300"
   statistic           = "Sum"
   threshold           = "1"
+  treat_missing_data  = "notBreaching"
   alarm_actions       = ["${data.aws_sns_topic.error_alerts.arn}"]
 }
