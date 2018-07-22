@@ -2,10 +2,6 @@ variable "domain" {}
 variable "environment" {}
 variable "backend_instance_ip" {}
 
-variable "letsencrypt_challenge" {
-  default = ""
-}
-
 variable "www_domain" {
   default = ""
 }
@@ -28,15 +24,6 @@ data "template_file" "environment_prefix" {
 
 data "template_file" "environment_prefix_with_dot" {
   template = "${ var.environment == "prod" ? "" : ".dev" }"
-}
-
-resource "aws_route53_record" "challenge" {
-  count   = "${length(var.letsencrypt_challenge) > 0 ? 1 : 0}"
-  zone_id = "${data.aws_route53_zone.caronae.zone_id}"
-  name    = "_acme-challenge${data.template_file.environment_prefix_with_dot.rendered}${data.template_file.workspace_dns_domain_with_dot.rendered}"
-  type    = "TXT"
-  ttl     = "300"
-  records = ["${var.letsencrypt_challenge}"]
 }
 
 resource "aws_route53_record" "api" {

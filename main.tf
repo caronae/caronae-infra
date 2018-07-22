@@ -12,14 +12,6 @@ locals {
   domain            = "caronae.org"
 }
 
-variable "letsencrypt_challenge_prod" {
-  default = ""
-}
-
-variable "letsencrypt_challenge_dev" {
-  default = ""
-}
-
 provider "aws" {
   region = "${local.region}"
 }
@@ -61,17 +53,15 @@ module "compute" {
 module "dns_prod" {
   source = "./dns"
 
-  domain                = "${local.domain}"
-  environment           = "prod"
-  backend_instance_ip   = "${module.network.elastic_ips[0]}"
-  letsencrypt_challenge = "${var.letsencrypt_challenge_prod}"
+  domain              = "${local.domain}"
+  environment         = "prod"
+  backend_instance_ip = "${module.network.elastic_ips[0]}"
 }
 
 module "dns_dev" {
   source = "./dns"
 
-  domain                = "${local.domain}"
-  environment           = "dev"
-  backend_instance_ip   = "${module.network.elastic_ips[1]}"
-  letsencrypt_challenge = "${var.letsencrypt_challenge_dev}"
+  domain              = "${local.domain}"
+  environment         = "dev"
+  backend_instance_ip = "${module.network.elastic_ips[1]}"
 }
