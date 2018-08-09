@@ -79,7 +79,7 @@ resource "aws_cloudwatch_log_metric_filter" "warnings" {
 }
 
 data "template_file" "dashboard" {
-  template = "${file("compute/environment/instance/dashboard.json.tpl")}"
+  template = "${file("compute/environment/instance/dashboard.tpl.json")}"
 
   vars {
     instance_id = "${aws_instance.caronae.id}"

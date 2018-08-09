@@ -1,0 +1,176 @@
+{
+  "widgets": [
+    {
+      "type": "metric",
+      "properties": {
+        "metrics": [
+          [
+            "AWS/EC2",
+            "CPUUtilization",
+            "InstanceId",
+            "${instance_id}"
+          ]
+        ],
+        "period": 300,
+        "stat": "Average",
+        "stacked": true,
+        "region": "${region}",
+        "title": "CPU utilization",
+        "yAxis": {
+          "left": {
+            "min": 0,
+            "max": 100
+          }
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "properties": {
+        "metrics": [
+          [
+            "System/Linux",
+            "MemoryUtilization",
+            "InstanceId",
+            "${instance_id}"
+          ]
+        ],
+        "period": 300,
+        "stat": "Average",
+        "stacked": true,
+        "region": "${region}",
+        "title": "Memory utilization",
+        "yAxis": {
+          "left": {
+            "min": 0,
+            "max": 100
+          }
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "properties": {
+        "metrics": [
+          [
+            "System/Linux",
+            "DiskSpaceUtilization",
+            "InstanceId",
+            "${instance_id}",
+            "MountPath",
+            "/"
+          ],
+          [
+            "System/Linux",
+            "DiskSpaceUtilization",
+            "InstanceId",
+            "${instance_id}",
+            "MountPath",
+            "/data"
+          ]
+        ],
+        "period": 300,
+        "stat": "Average",
+        "region": "${region}",
+        "title": "Disk utilization",
+        "yAxis": {
+          "left": {
+            "min": 0,
+            "max": 100
+          }
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "properties": {
+        "metrics": [
+          [
+            "Caronae",
+            "${log_group}-error-count"
+          ]
+        ],
+        "period": 300,
+        "stat": "Average",
+        "region": "${region}",
+        "title": "Error count"
+      }
+    },
+    {
+      "type": "metric",
+      "properties": {
+        "metrics": [
+          [
+            "Caronae",
+            "${log_group}-warning-count"
+          ]
+        ],
+        "period": 300,
+        "stat": "Average",
+        "region": "${region}",
+        "title": "Warning count"
+      }
+    },
+    {
+      "type": "metric",
+      "properties": {
+        "metrics": [
+          [
+            "Caronae",
+            "${log_group}-nginx-response-time"
+          ]
+        ],
+        "period": 60,
+        "stat": "Average",
+        "stacked": true,
+        "region": "${region}",
+        "title": "Response time"
+      }
+    },
+    {
+      "type": "metric",
+      "properties": {
+        "metrics": [
+          [
+            "Caronae",
+            "${log_group}-nginx-request-count"
+          ]
+        ],
+        "period": 60,
+        "stat": "Sum",
+        "region": "${region}",
+        "title": "Request count"
+      }
+    },
+    {
+      "type": "metric",
+      "properties": {
+        "metrics": [
+          [
+            "Caronae",
+            "${log_group}-nginx-request-4xx-count"
+          ]
+        ],
+        "period": 60,
+        "stat": "Sum",
+        "region": "${region}",
+        "title": "4xx responses"
+      }
+    },
+    {
+      "type": "metric",
+      "properties": {
+        "metrics": [
+          [
+            "Caronae",
+            "${log_group}-nginx-request-5xx-count"
+          ]
+        ],
+        "period": 60,
+        "stat": "Sum",
+        "region": "${region}",
+        "title": "5xx responses"
+      }
+    }
+  ]
+}
