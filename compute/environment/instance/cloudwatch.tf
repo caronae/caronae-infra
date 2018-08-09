@@ -42,6 +42,18 @@ resource "aws_cloudwatch_log_metric_filter" "nginx_requests_5xx" {
   }
 }
 
+resource "aws_cloudwatch_log_metric_filter" "nginx_response_time" {
+  name           = "${aws_cloudwatch_log_group.default.name}-nginx-response-time"
+  pattern        = "[host != 127.0.0.1, logName, user, timestamp, request, statusCode, size, a, userAgent, responseTime, responseTimeUpstream]"
+  log_group_name = "${aws_cloudwatch_log_group.default.name}"
+
+  metric_transformation {
+    name      = "${aws_cloudwatch_log_group.default.name}-nginx-response-time"
+    namespace = "Caronae"
+    value     = "$responseTime"
+  }
+}
+
 resource "aws_cloudwatch_log_metric_filter" "errors" {
   name           = "${aws_cloudwatch_log_group.default.name}-error-logs"
   pattern        = "ERROR"

@@ -97,6 +97,21 @@
              "metrics":[
                 [
                    "Caronae",
+                   "${log_group}-nginx-response-time"
+                ]
+             ],
+             "period":60,
+             "stat":"Average",
+             "region":"${region}",
+             "title":"Response time"
+          }
+       },
+       {
+          "type":"metric",
+          "properties":{
+             "metrics":[
+                [
+                   "Caronae",
                    "${log_group}-nginx-request-count"
                 ]
              ],
