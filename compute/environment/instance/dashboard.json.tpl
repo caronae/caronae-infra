@@ -13,8 +13,15 @@
              ],
              "period":300,
              "stat":"Average",
+             "stacked":true,
              "region":"${region}",
-             "title":"CPU utilization"
+             "title":"CPU utilization",
+             "yAxis":{
+               "left":{
+                  "min":0,
+                  "max":100
+               }
+              }
           }
        },
        {
@@ -30,8 +37,15 @@
              ],
              "period":300,
              "stat":"Average",
+             "stacked":true,
              "region":"${region}",
-             "title":"Memory utilization"
+             "title":"Memory utilization",
+"yAxis":{
+"left":{
+"min":0,
+"max":100
+}
+}
           }
        },
        {
@@ -58,7 +72,13 @@
              "period":300,
              "stat":"Average",
              "region":"${region}",
-             "title":"Disk utilization"
+             "title":"Disk utilization",
+"yAxis":{
+"left":{
+"min":0,
+"max":100
+}
+}
           }
        },
        {
@@ -102,6 +122,7 @@
              ],
              "period":60,
              "stat":"Average",
+             "stacked":true,
              "region":"${region}",
              "title":"Response time"
           }
