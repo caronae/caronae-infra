@@ -114,10 +114,10 @@ resource "aws_cloudwatch_metric_alarm" "error_alarm" {
 resource "aws_cloudwatch_metric_alarm" "cpu_alarm" {
   alarm_name          = "${aws_cloudwatch_log_group.default.name}-cpu-utilization-high"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = "1"
+  evaluation_periods  = "2"
   metric_name         = "CPUUtilization"
   namespace           = "AWS/EC2"
-  period              = "120"
+  period              = "300"
   statistic           = "Average"
   threshold           = "75"
   alarm_actions       = ["${data.aws_sns_topic.error_alerts.arn}"]
@@ -130,10 +130,10 @@ resource "aws_cloudwatch_metric_alarm" "cpu_alarm" {
 resource "aws_cloudwatch_metric_alarm" "memory_alarm" {
   alarm_name          = "${aws_cloudwatch_log_group.default.name}-memory-utilization-high"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = "1"
+  evaluation_periods  = "2"
   metric_name         = "MemoryUtilization"
   namespace           = "System/Linux"
-  period              = "120"
+  period              = "300"
   statistic           = "Average"
   threshold           = "75"
   alarm_actions       = ["${data.aws_sns_topic.error_alerts.arn}"]
