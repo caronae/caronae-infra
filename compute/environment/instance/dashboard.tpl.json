@@ -91,7 +91,7 @@
           ]
         ],
         "period": 300,
-        "stat": "Average",
+        "stat": "Sum",
         "region": "${region}",
         "title": "Error count"
       }
@@ -106,7 +106,7 @@
           ]
         ],
         "period": 300,
-        "stat": "Average",
+        "stat": "Sum",
         "region": "${region}",
         "title": "Warning count"
       }
