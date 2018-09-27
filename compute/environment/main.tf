@@ -9,6 +9,11 @@ variable "environment" {}
 
 resource "aws_eip" "instance" {
   vpc = true
+  tags {
+    Name        = "caronae-eip-${terraform.workspace}-${var.environment}"
+    Environment = "${var.environment}"
+    Workspace   = "${terraform.workspace}"
+  }
 }
 
 module "dns" {
