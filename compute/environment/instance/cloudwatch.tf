@@ -98,7 +98,7 @@ data "aws_sns_topic" "error_alerts" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "error_alarm" {
-  count               = "${var.environment == "prod" ? 1 : 0}"
+  count               = "${var.environment == "prod" && terraform.workspace == "default" ? 1 : 0}"
   alarm_name          = "${aws_cloudwatch_log_group.default.name}-errors"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -112,6 +112,7 @@ resource "aws_cloudwatch_metric_alarm" "error_alarm" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "cpu_alarm" {
+  count               = "${terraform.workspace == "default" ? 1 : 0}"
   alarm_name          = "${aws_cloudwatch_log_group.default.name}-cpu-utilization-high"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "2"
@@ -128,6 +129,7 @@ resource "aws_cloudwatch_metric_alarm" "cpu_alarm" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "memory_alarm" {
+  count               = "${terraform.workspace == "default" ? 1 : 0}"
   alarm_name          = "${aws_cloudwatch_log_group.default.name}-memory-utilization-high"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "2"
