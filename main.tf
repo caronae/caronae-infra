@@ -15,6 +15,7 @@ variable "availability_zone" {
 }
 
 provider "aws" {
+  version = "1.38.0"
   region = "${var.region}"
 }
 
