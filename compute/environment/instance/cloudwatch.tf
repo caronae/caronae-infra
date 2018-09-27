@@ -1,6 +1,6 @@
 resource "aws_cloudwatch_log_group" "default" {
   name = "${data.template_file.instance_name.rendered}"
-
+  retention_in_days = "30"
   tags {
     Workspace = "${terraform.workspace}"
   }
