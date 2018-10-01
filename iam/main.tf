@@ -144,6 +144,37 @@ resource "aws_iam_role_policy_attachment" "caronae_role_policy_backups" {
   policy_arn = "${aws_iam_policy.caronae_backups_bucket.arn}"
 }
 
+resource "aws_iam_policy" "caronae_ses" {
+  name = "CaronaeSESSendEmailFromNoReply-${terraform.workspace}"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "VisualEditor0",
+      "Effect": "Allow",
+      "Action": [
+        "ses:SendEmail",
+        "ses:SendRawEmail"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "ses:FromAddress": "no-reply@caronae.org"
+        }
+      }
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "caronae_role_policy_ses" {
+  role       = "${aws_iam_role.caronae_instance.name}"
+  policy_arn = "${aws_iam_policy.caronae_ses.arn}"
+}
+
 resource "aws_iam_instance_profile" "caronae_instance" {
   name = "caronae-instance-${terraform.workspace}"
   role = "${aws_iam_role.caronae_instance.name}"
