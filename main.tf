@@ -15,7 +15,7 @@ variable "availability_zone" {
 }
 
 provider "aws" {
-  version = "1.38.0"
+  version = "1.60.0"
   region = "${var.region}"
 }
 
@@ -43,4 +43,8 @@ module "compute" {
   security_group      = "${module.network.web_security_group}"
   iam_profile         = "${module.iam.instance_iam_profile}"
   certificates_bucket = "${module.storage.certificates_bucket_name}"
+}
+
+module "website" {
+  source = "./website"
 }
