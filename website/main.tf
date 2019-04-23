@@ -1,6 +1,9 @@
 locals {
   resource_suffix = "${terraform.workspace == "default" ? "" : format("-%s", terraform.workspace)}"
   s3_origin_id = "website-bucket-origin"
+  dns_zone = "caronae.org"
+  dns_record = "website${local.resource_suffix}"
+  dns_fqdn = "${local.dns_record}${local.resource_suffix}"
 }
 
 resource "aws_s3_bucket" "website" {
@@ -19,6 +22,7 @@ resource "aws_s3_bucket" "website" {
 resource "aws_cloudfront_distribution" "website" {
   enabled = true
   default_root_object = "index.html"
+  aliases = ["${local.dns_record}.${local.dns_zone}"]
 
   origin {
     domain_name = "${aws_s3_bucket.website.bucket_regional_domain_name}"
@@ -47,7 +51,8 @@ resource "aws_cloudfront_distribution" "website" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true
+    acm_certificate_arn = "${aws_acm_certificate.website.arn}"
+    ssl_support_method = "sni-only"
   }
 
   tags {
