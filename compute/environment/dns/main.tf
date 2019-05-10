@@ -5,33 +5,20 @@ variable "domain" {
 variable "environment" {}
 variable "backend_instance_ip" {}
 
-variable "www_domain" {
-  default = ""
+locals {
+  workspace_suffix = "${terraform.workspace == "default" ? "" : format(".%s", terraform.workspace)}"
+  environment_suffix = "${var.environment == "prod" ? "" : var.environment}"
+  resource_suffix = "${format("%s%s", local.environment_suffix, local.workspace_suffix)}"
+  main_dns_fqdn = "${local.resource_suffix == "" ? var.domain : format("%s.%s", local.resource_suffix, var.domain)}"
 }
 
 data "aws_route53_zone" "caronae" {
-  name = "${var.domain}."
+  name = "${var.domain}"
 }
 
-data "template_file" "workspace_dns_domain" {
-  template = "${ terraform.workspace == "default" ? "" : "${terraform.workspace}" }"
-}
-
-data "template_file" "workspace_dns_domain_with_dot" {
-  template = "${ terraform.workspace == "default" ? "" : ".${terraform.workspace}" }"
-}
-
-data "template_file" "environment_prefix" {
-  template = "${ var.environment == "prod" ? "" : "dev" }"
-}
-
-data "template_file" "environment_prefix_with_dot" {
-  template = "${ var.environment == "prod" ? "" : ".dev" }"
-}
-
-resource "aws_route53_record" "api" {
+resource "aws_route53_record" "origin" {
   zone_id = "${data.aws_route53_zone.caronae.zone_id}"
-  name    = "api${data.template_file.environment_prefix_with_dot.rendered}${data.template_file.workspace_dns_domain_with_dot.rendered}"
+  name    = "origin.${local.resource_suffix}"
   type    = "A"
   ttl     = "300"
   records = ["${var.backend_instance_ip}"]
@@ -39,7 +26,7 @@ resource "aws_route53_record" "api" {
 
 resource "aws_route53_record" "ufrj" {
   zone_id = "${data.aws_route53_zone.caronae.zone_id}"
-  name    = "ufrj${data.template_file.environment_prefix_with_dot.rendered}${data.template_file.workspace_dns_domain_with_dot.rendered}"
+  name    = "ufrj.${local.resource_suffix}"
   type    = "A"
   ttl     = "300"
   records = ["${var.backend_instance_ip}"]
@@ -47,7 +34,7 @@ resource "aws_route53_record" "ufrj" {
 
 resource "aws_route53_record" "site" {
   zone_id = "${data.aws_route53_zone.caronae.zone_id}"
-  name    = "${data.template_file.environment_prefix.rendered}${data.template_file.workspace_dns_domain.rendered}"
+  name    = "${local.resource_suffix}"
   type    = "A"
   ttl     = "300"
   records = ["${var.backend_instance_ip}"]
@@ -56,8 +43,12 @@ resource "aws_route53_record" "site" {
 resource "aws_route53_record" "www" {
   count   = "${var.environment == "prod" ? 1 : 0}"
   zone_id = "${data.aws_route53_zone.caronae.zone_id}"
-  name    = "www${data.template_file.workspace_dns_domain_with_dot.rendered}"
+  name    = "www.${local.resource_suffix}"
   type    = "A"
   ttl     = "300"
   records = ["${var.backend_instance_ip}"]
+}
+
+output "origin_fqdn" {
+  value = "${aws_route53_record.origin.fqdn}"
 }
