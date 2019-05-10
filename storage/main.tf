@@ -11,6 +11,14 @@ resource "aws_s3_bucket" "certificates" {
   }
 }
 
+resource "aws_s3_bucket_public_access_block" "certificates" {
+  bucket = "${aws_s3_bucket.certificates.id}"
+
+  block_public_acls   = true
+  block_public_policy = true
+  ignore_public_acls  = true
+}
+
 resource "aws_s3_bucket" "user_content" {
   bucket = "usercontent${data.template_file.bucket_suffix.rendered}.caronae"
   acl    = "public-read"
@@ -27,6 +35,14 @@ resource "aws_s3_bucket" "backups" {
   tags {
     Workspace = "${terraform.workspace}"
   }
+}
+
+resource "aws_s3_bucket_public_access_block" "backups" {
+  bucket = "${aws_s3_bucket.backups.id}"
+
+  block_public_acls   = true
+  block_public_policy = true
+  ignore_public_acls  = true
 }
 
 output "certificates_bucket_arn" {
