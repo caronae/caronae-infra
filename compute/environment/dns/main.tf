@@ -24,14 +24,6 @@ resource "aws_route53_record" "origin" {
   records = ["${var.backend_instance_ip}"]
 }
 
-resource "aws_route53_record" "ufrj" {
-  zone_id = "${data.aws_route53_zone.caronae.zone_id}"
-  name    = "ufrj.${local.resource_suffix}"
-  type    = "A"
-  ttl     = "300"
-  records = ["${var.backend_instance_ip}"]
-}
-
 resource "aws_route53_record" "site" {
   zone_id = "${data.aws_route53_zone.caronae.zone_id}"
   name    = "${local.resource_suffix}"
