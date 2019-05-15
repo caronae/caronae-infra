@@ -1,5 +1,5 @@
 resource "aws_cloudfront_distribution" "main" {
-  comment             = "Website ${var.environment} - ${terraform.workspace}"
+  comment             = "website ${var.environment} - ${terraform.workspace}"
   enabled             = true
   default_root_object = "index.html"
   aliases             = [

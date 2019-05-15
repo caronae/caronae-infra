@@ -24,23 +24,6 @@ resource "aws_route53_record" "origin" {
   records = ["${var.backend_instance_ip}"]
 }
 
-resource "aws_route53_record" "site" {
-  zone_id = "${data.aws_route53_zone.caronae.zone_id}"
-  name    = "${local.resource_suffix}"
-  type    = "A"
-  ttl     = "300"
-  records = ["${var.backend_instance_ip}"]
-}
-
-resource "aws_route53_record" "www" {
-  count   = "${var.environment == "prod" ? 1 : 0}"
-  zone_id = "${data.aws_route53_zone.caronae.zone_id}"
-  name    = "www.${local.resource_suffix}"
-  type    = "A"
-  ttl     = "300"
-  records = ["${var.backend_instance_ip}"]
-}
-
 output "origin_fqdn" {
   value = "${aws_route53_record.origin.fqdn}"
 }
