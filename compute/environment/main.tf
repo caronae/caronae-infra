@@ -41,3 +41,9 @@ module "instance" {
   data_volume_id       = "${module.volume.data_volume}"
   certificates_bucket  = "${var.certificates_bucket}"
 }
+
+module "website" {
+  source               = "./website"
+  environment          = "${var.environment}"
+  acm_certificate_arn   = "${module.dns.acm_certificate_arn}"
+}

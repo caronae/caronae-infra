@@ -44,7 +44,3 @@ module "compute" {
   iam_profile         = "${module.iam.instance_iam_profile}"
   certificates_bucket = "${module.storage.certificates_bucket_name}"
 }
-
-module "website" {
-  source = "./website"
-}
