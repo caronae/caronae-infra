@@ -85,11 +85,6 @@
     - name: Create caronae directory
       file: path=/var/caronae state=directory
 
-    - name: Fetch SSL certificates
-      command: aws s3 cp --recursive s3://{{ certificates_bucket }}/{{ caronae_env }} /var/caronae/certs
-      args:
-        creates: /var/caronae/certs
-
     - name: Clone caronae-site
       git:
         repo: https://github.com/caronae/caronae-site.git
