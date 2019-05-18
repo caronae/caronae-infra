@@ -13,8 +13,8 @@ locals {
 }
 
 resource "aws_instance" "caronae" {
-  ami                    = "ami-14c5486b"
-  instance_type          = "t2.micro"
+  ami                    = "ami-0756fbca465a59a30"
+  instance_type          = "t3.micro"
   availability_zone      = "${var.availability_zone}"
   subnet_id              = "${var.subnet}"
   vpc_security_group_ids = ["${var.security_group}"]
