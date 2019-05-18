@@ -1,5 +1,8 @@
 variable "environment" {}
 variable "acm_certificate_arn" {}
+variable "api_origin_fqdn" {}
+variable "api_origin_http_port" {}
+variable "api_dns_record" {}
 
 locals {
   workspace_suffix = "${terraform.workspace == "default" ? "" : format(".%s", terraform.workspace)}"
@@ -11,4 +14,5 @@ locals {
   main_dns_fqdn   = "${local.resource_suffix == "" ? local.dns_zone : format("%s.%s", local.resource_suffix, local.dns_zone)}"
   s3_origin_id    = "website-bucket"
   s3_bucket_name  = "website.${local.resource_suffix == "" ? "" : format("%s.", local.resource_suffix)}caronae"
+  api_origin_id    = "api"
 }

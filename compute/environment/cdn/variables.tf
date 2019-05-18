@@ -7,3 +7,7 @@ variable "acm_certificate_arn" {}
 locals {
   dns_zone = "caronae.org"
 }
+
+output "fqdn" {
+  value = "${aws_route53_record.alias.fqdn}"
+}

@@ -46,4 +46,7 @@ module "website" {
   source               = "./website"
   environment          = "${var.environment}"
   acm_certificate_arn   = "${module.dns.acm_certificate_arn}"
+  api_origin_fqdn      = "${module.dns.origin_fqdn}"
+  api_dns_record       = "${module.cdn-api.fqdn}"
+  api_origin_http_port = 8000
 }
