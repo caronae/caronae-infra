@@ -3,7 +3,6 @@ variable "availability_zone" {}
 variable "subnet" {}
 variable "security_group" {}
 variable "iam_profile" {}
-variable "certificates_bucket" {}
 
 module "prod" {
   source              = "./environment"
@@ -14,7 +13,6 @@ module "prod" {
   subnet              = "${var.subnet}"
   security_group      = "${var.security_group}"
   iam_profile         = "${var.iam_profile}"
-  certificates_bucket = "${var.certificates_bucket}"
 }
 
 module "dev" {
@@ -26,5 +24,4 @@ module "dev" {
   subnet              = "${var.subnet}"
   security_group      = "${var.security_group}"
   iam_profile         = "${var.iam_profile}"
-  certificates_bucket = "${var.certificates_bucket}"
 }

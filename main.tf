@@ -30,7 +30,6 @@ module "storage" {
 
 module "iam" {
   source              = "./iam"
-  certificates_bucket = "${module.storage.certificates_bucket_arn}"
   user_content_bucket = "${module.storage.user_content_bucket_arn}"
   backups_bucket      = "${module.storage.backups_bucket_arn}"
 }
@@ -41,6 +40,5 @@ module "compute" {
   availability_zone   = "${var.availability_zone}"
   subnet              = "${module.network.subnet}"
   security_group      = "${module.network.web_security_group}"
-  iam_profile         = "${module.iam.instance_iam_profile}"
-  certificates_bucket = "${module.storage.certificates_bucket_name}"
+  iam_profile          = "${module.iam.instance_iam_profile}"
 }

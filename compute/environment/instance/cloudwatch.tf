@@ -1,5 +1,5 @@
 resource "aws_cloudwatch_log_group" "default" {
-  name = "${data.template_file.instance_name.rendered}"
+  name = "${local.instance_name}"
   retention_in_days = "30"
   tags {
     Workspace = "${terraform.workspace}"
@@ -89,7 +89,7 @@ data "template_file" "dashboard" {
 }
 
 resource "aws_cloudwatch_dashboard" "default" {
-  dashboard_name = "${data.template_file.instance_name.rendered}"
+  dashboard_name = "${local.instance_name}"
   dashboard_body = "${data.template_file.dashboard.rendered}"
 }
 

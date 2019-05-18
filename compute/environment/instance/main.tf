@@ -7,10 +7,9 @@ variable "iam_instance_profile" {}
 variable "data_volume_id" {}
 variable "environment" {}
 variable "image_tag" {}
-variable "certificates_bucket" {}
 
-data "template_file" "instance_name" {
-  template = "${ terraform.workspace == "default" ? "caronae-${var.environment}" : "caronae-${terraform.workspace}-${var.environment}" }"
+locals {
+  instance_name = "${terraform.workspace == "default" ? "caronae-${var.environment}" : "caronae-${terraform.workspace}-${var.environment}"}"
 }
 
 resource "aws_instance" "caronae" {
@@ -20,10 +19,10 @@ resource "aws_instance" "caronae" {
   subnet_id              = "${var.subnet}"
   vpc_security_group_ids = ["${var.security_group}"]
   key_name               = "terraform"
-  iam_instance_profile   = "${var.iam_instance_profile}"
+  iam_instance_profile    = "${var.iam_instance_profile}"
 
   tags {
-    Name        = "${data.template_file.instance_name.rendered}"
+    Name        = "${local.instance_name}"
     Environment = "${var.environment}"
     Workspace   = "${terraform.workspace}"
   }
@@ -48,6 +47,6 @@ resource "null_resource" "ansible_provisioner" {
   }
 
   provisioner "local-exec" {
-    command = "sleep 60; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -v -u ec2-user --private-key terraform.pem -i '${aws_eip_association.eip_assoc.public_ip},' --extra-vars 'caronae_env=${var.environment} image_tag=${var.image_tag} certificates_bucket=${var.certificates_bucket} region=${var.region} log_group=${aws_cloudwatch_log_group.default.name}' compute/environment/instance/ansible-playbook.yml"
+    command = "sleep 60; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -v -u ec2-user --private-key terraform.pem -i '${aws_eip_association.eip_assoc.public_ip},' --extra-vars 'caronae_env=${var.environment} image_tag=${var.image_tag} region=${var.region} log_group=${aws_cloudwatch_log_group.default.name}' compute/environment/instance/ansible-playbook.yml"
   }
 }

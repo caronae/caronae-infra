@@ -3,7 +3,6 @@ variable "availability_zone" {}
 variable "subnet" {}
 variable "security_group" {}
 variable "iam_profile" {}
-variable "certificates_bucket" {}
 variable "image_tag" {}
 variable "environment" {}
 
@@ -39,7 +38,6 @@ module "instance" {
   subnet               = "${var.subnet}"
   elastic_ip_id        = "${aws_eip.instance.id}"
   data_volume_id       = "${module.volume.data_volume}"
-  certificates_bucket  = "${var.certificates_bucket}"
 }
 
 module "website" {
