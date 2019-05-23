@@ -15,8 +15,16 @@ variable "availability_zone" {
 }
 
 provider "aws" {
-  version = "1.60.0"
+  version = "~> 2.11.0"
   region = "${var.region}"
+}
+
+provider "template" {
+  version = "~> 2.1.2"
+}
+
+provider "null" {
+  version = "~> 2.1.2"
 }
 
 module "network" {
