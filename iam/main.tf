@@ -1,5 +1,8 @@
-variable "user_content_bucket" {}
-variable "backups_bucket" {}
+variable "user_content_bucket" {
+}
+
+variable "backups_bucket" {
+}
 
 data "aws_iam_policy_document" "assume_ec2_role" {
   statement {
@@ -15,7 +18,7 @@ data "aws_iam_policy_document" "assume_ec2_role" {
 
 resource "aws_iam_role" "caronae_instance" {
   name               = "caronae-instance-${terraform.workspace}"
-  assume_role_policy = "${data.aws_iam_policy_document.assume_ec2_role.json}"
+  assume_role_policy = data.aws_iam_policy_document.assume_ec2_role.json
 }
 
 resource "aws_iam_policy" "caronae_instance" {
@@ -41,6 +44,7 @@ resource "aws_iam_policy" "caronae_instance" {
   ]
 }
 EOF
+
 }
 
 resource "aws_iam_policy" "caronae_user_content_bucket" {
@@ -69,12 +73,13 @@ resource "aws_iam_policy" "caronae_user_content_bucket" {
   ]
 }
 EOF
+
 }
 
 resource "aws_iam_policy" "caronae_backups_bucket" {
-  name = "CaronaeBackupsS3BucketWrite-${terraform.workspace}"
+name = "CaronaeBackupsS3BucketWrite-${terraform.workspace}"
 
-  policy = <<EOF
+policy = <<EOF
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -97,27 +102,28 @@ resource "aws_iam_policy" "caronae_backups_bucket" {
   ]
 }
 EOF
+
 }
 
 resource "aws_iam_role_policy_attachment" "caronae_role_policy" {
-  role       = "${aws_iam_role.caronae_instance.name}"
-  policy_arn = "${aws_iam_policy.caronae_instance.arn}"
+role = aws_iam_role.caronae_instance.name
+policy_arn = aws_iam_policy.caronae_instance.arn
 }
 
 resource "aws_iam_role_policy_attachment" "caronae_role_policy_user_content" {
-  role       = "${aws_iam_role.caronae_instance.name}"
-  policy_arn = "${aws_iam_policy.caronae_user_content_bucket.arn}"
+role = aws_iam_role.caronae_instance.name
+policy_arn = aws_iam_policy.caronae_user_content_bucket.arn
 }
 
 resource "aws_iam_role_policy_attachment" "caronae_role_policy_backups" {
-  role       = "${aws_iam_role.caronae_instance.name}"
-  policy_arn = "${aws_iam_policy.caronae_backups_bucket.arn}"
+role = aws_iam_role.caronae_instance.name
+policy_arn = aws_iam_policy.caronae_backups_bucket.arn
 }
 
 resource "aws_iam_policy" "caronae_ses" {
-  name = "CaronaeSESSendEmailFromNoReply-${terraform.workspace}"
+name = "CaronaeSESSendEmailFromNoReply-${terraform.workspace}"
 
-  policy = <<EOF
+policy = <<EOF
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -138,18 +144,19 @@ resource "aws_iam_policy" "caronae_ses" {
   ]
 }
 EOF
+
 }
 
 resource "aws_iam_role_policy_attachment" "caronae_role_policy_ses" {
-  role       = "${aws_iam_role.caronae_instance.name}"
-  policy_arn = "${aws_iam_policy.caronae_ses.arn}"
+  role       = aws_iam_role.caronae_instance.name
+  policy_arn = aws_iam_policy.caronae_ses.arn
 }
 
 resource "aws_iam_instance_profile" "caronae_instance" {
   name = "caronae-instance-${terraform.workspace}"
-  role = "${aws_iam_role.caronae_instance.name}"
+  role = aws_iam_role.caronae_instance.name
 }
 
 output "instance_iam_profile" {
-  value = "${aws_iam_instance_profile.caronae_instance.id}"
+  value = aws_iam_instance_profile.caronae_instance.id
 }
