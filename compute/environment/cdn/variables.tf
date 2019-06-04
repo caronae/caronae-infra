@@ -1,13 +1,22 @@
-variable "dns_record" {}
-variable "origin_id" {}
-variable "origin_fqdn" {}
-variable "origin_http_port" {}
-variable "acm_certificate_arn" {}
+variable "dns_record" {
+}
+
+variable "origin_id" {
+}
+
+variable "origin_fqdn" {
+}
+
+variable "origin_http_port" {
+}
+
+variable "acm_certificate_arn" {
+}
 
 locals {
   dns_zone = "caronae.org"
 }
 
 output "fqdn" {
-  value = "${aws_route53_record.alias.fqdn}"
+  value = aws_route53_record.alias.fqdn
 }
