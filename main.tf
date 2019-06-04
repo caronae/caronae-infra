@@ -16,7 +16,7 @@ variable "availability_zone" {
 
 provider "aws" {
   version = "~> 2.11.0"
-  region = "${var.region}"
+  region  = var.region
 }
 
 provider "template" {
@@ -29,7 +29,7 @@ provider "null" {
 
 module "network" {
   source = "./network"
-  region = "${var.region}"
+  region = var.region
 }
 
 module "storage" {
@@ -38,15 +38,15 @@ module "storage" {
 
 module "iam" {
   source              = "./iam"
-  user_content_bucket = "${module.storage.user_content_bucket_arn}"
-  backups_bucket      = "${module.storage.backups_bucket_arn}"
+  user_content_bucket = module.storage.user_content_bucket_arn
+  backups_bucket      = module.storage.backups_bucket_arn
 }
 
 module "compute" {
-  source              = "./compute"
-  region              = "${var.region}"
-  availability_zone   = "${var.availability_zone}"
-  subnet              = "${module.network.subnet}"
-  security_group      = "${module.network.web_security_group}"
-  iam_profile          = "${module.iam.instance_iam_profile}"
+  source            = "./compute"
+  region            = var.region
+  availability_zone = var.availability_zone
+  subnet            = module.network.subnet
+  security_group    = module.network.web_security_group
+  iam_profile       = module.iam.instance_iam_profile
 }
