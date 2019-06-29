@@ -7,16 +7,10 @@ variable "availability_zone" {
 variable "subnet" {
 }
 
-variable "elastic_ip_id" {
-}
-
 variable "security_group" {
 }
 
 variable "iam_instance_profile" {
-}
-
-variable "data_volume_id" {
 }
 
 variable "environment" {
@@ -29,41 +23,44 @@ locals {
   instance_name = terraform.workspace == "default" ? "caronae-${var.environment}" : "caronae-${terraform.workspace}-${var.environment}"
 }
 
-resource "aws_instance" "caronae" {
-  ami                    = "ami-0756fbca465a59a30"
+resource "aws_ecs_cluster" "default" {
+  name = var.environment
+}
+
+resource "aws_launch_configuration" "ecs-launch-configuration" {
+  name_prefix = "caronae-${var.environment}-ecs-launch-configuration"
+  image_id               = "ami-02507631a9f7bc956"
   instance_type          = "t3.micro"
-  availability_zone      = var.availability_zone
-  subnet_id              = var.subnet
-  vpc_security_group_ids = [var.security_group]
-  key_name               = "terraform"
   iam_instance_profile   = var.iam_instance_profile
+  security_groups = [var.security_group]
 
-  tags = {
-    Name        = local.instance_name
-    Environment = var.environment
-    Workspace   = terraform.workspace
-  }
-}
-
-resource "aws_eip_association" "eip_assoc" {
-  instance_id   = aws_instance.caronae.id
-  allocation_id = var.elastic_ip_id
-}
-
-resource "aws_volume_attachment" "data_volume" {
-  device_name = "/dev/sdh"
-  volume_id   = var.data_volume_id
-  instance_id = aws_instance.caronae.id
-}
-
-resource "null_resource" "ansible_provisioner" {
-  triggers = {
-    instance = aws_instance.caronae.id
-    volume   = aws_volume_attachment.data_volume.volume_id
-    playbook = filemd5("compute/environment/instance/ansible-playbook.yml")
+  lifecycle {
+    create_before_destroy = true
   }
 
-  provisioner "local-exec" {
-    command = "sleep 60; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -v -u ec2-user --private-key terraform.pem -i '${aws_eip_association.eip_assoc.public_ip},' --extra-vars 'caronae_env=${var.environment} image_tag=${var.image_tag} region=${var.region} log_group=${aws_cloudwatch_log_group.default.name}' compute/environment/instance/ansible-playbook.yml"
+  associate_public_ip_address = "false"
+  key_name = "terraform"
+
+  user_data            = <<EOF
+#cloud-config
+write_files:
+  - path: /etc/ecs/ecs.config
+    content: 'ECS_CLUSTER=${aws_ecs_cluster.default.name}'
+EOF
+}
+
+resource "aws_autoscaling_group" "ecs-autoscaling-group" {
+  name = "ecs-autoscaling-group"
+  max_size = "1"
+  min_size = "1"
+  desired_capacity = "1"
+
+  vpc_zone_identifier = [var.subnet]
+  launch_configuration = aws_launch_configuration.ecs-launch-configuration.name
+
+  tag {
+    key = "Name"
+    value = "ECS-myecscluster"
+    propagate_at_launch = true
   }
 }

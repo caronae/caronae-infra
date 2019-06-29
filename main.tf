@@ -48,5 +48,6 @@ module "compute" {
   availability_zone = var.availability_zone
   subnet            = module.network.subnet
   security_group    = module.network.web_security_group
-  iam_profile       = module.iam.instance_iam_profile
+  iam_profile        = module.iam.instance_iam_profile
+  vpc_id            = module.network.vpc_id
 }

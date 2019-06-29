@@ -21,7 +21,7 @@ data "aws_route53_zone" "caronae" {
 
 resource "aws_route53_record" "origin" {
   zone_id = data.aws_route53_zone.caronae.zone_id
-  name    = "origin.${local.resource_suffix}"
+  name    = "origin${local.resource_suffix}"
   type    = "A"
   ttl     = "300"
   records = [var.backend_instance_ip]
